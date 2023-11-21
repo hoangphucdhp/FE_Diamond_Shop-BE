@@ -25,9 +25,7 @@ public class Order {
 
     private Date create_date;
 
-    @ManyToOne
-    @JoinColumn(name = "id_address_order")
-    private AddressAccount address;
+    private String address_order;
 
 
     @OneToMany(mappedBy = "order")

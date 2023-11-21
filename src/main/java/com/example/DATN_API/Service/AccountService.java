@@ -53,9 +53,8 @@ public class AccountService {
   public Account createAccount(Account account) {
 		try {
 			PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-			Account accountCreate = accountReponsitory.save(account);
-			accountCreate.setPassword(passwordEncoder.encode(accountCreate.getPassword()));
-			return accountCreate;
+			account.setPassword(passwordEncoder.encode(account.getPassword()));
+			return accountReponsitory.save(account);
 		} catch (Exception e) {
 			e.printStackTrace();
 			LogError.saveToLog(e);

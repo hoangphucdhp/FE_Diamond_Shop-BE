@@ -22,13 +22,10 @@ public class AddressAccount {
     @JsonIgnore
     @JoinColumn(name = "id_account")
     private Account Addressaccount;
+    
     private String city;
     private String district;
     private String ward;
     private String address;
     private boolean status;
-
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "address")
-    @JsonIgnore
-    List<Order> orders;
 }

@@ -1,7 +1,9 @@
 package com.example.DATN_API.Controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,29 +28,29 @@ public class ProductController {
 	@Autowired
 	StorageService storageService;
 
+	@GetMapping("/findAll")
+	public ResponseEntity<ResponObject> findAll(@RequestParam("offset") Optional<Integer> offSet,
+			@RequestParam("sizePage") Optional<Integer> sizePage,
+			@RequestParam("sort") Optional<String> sort,
+			@RequestParam("status") Optional<Integer> status) {
+		return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+				"SUCCESS", "FIND ALL PRODUCT", productService.getPageProduct(status, offSet, sizePage, sort)));
+	}
 
-    @GetMapping("/findAll")
-    public ResponseEntity<ResponObject> findAll(@RequestParam("offset") Optional<Integer> offSet,
-                                                @RequestParam("sizePage") Optional<Integer>  sizePage,
-                                                @RequestParam("sort") Optional<String> sort,
-                                                @RequestParam("status") Optional<Integer> status ){
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
-                "SUCCESS","FIND ALL PRODUCT",productService.getPageProduct(status,offSet,sizePage,sort)
-        ));
-    }
 	@GetMapping()
 	public ResponseEntity<List<Product>> getAll() {
 		return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
 	}
 
 	@GetMapping("/getByShop")
-	public ResponseEntity<List<Product>> getAllbyShop(@RequestParam("status") Optional<String> getstatus,@RequestParam("shop") Optional<Integer> idshop) {
+	public ResponseEntity<List<Product>> getAllbyShop(@RequestParam("status") Optional<String> getstatus,
+			@RequestParam("shop") Optional<Integer> idshop) {
 		String status = getstatus.orElse("");
-		Shop shop=shopService.findById(idshop.orElse(0));
+		Shop shop = shopService.findById(idshop.orElse(0));
 		if (status.equals("isactive")) {
-			return new ResponseEntity<>(productService.findProductbyStatus(1,shop), HttpStatus.OK);
+			return new ResponseEntity<>(productService.findProductbyStatus(1, shop), HttpStatus.OK);
 		} else if (status.equals("unactive")) {
-			return new ResponseEntity<>(productService.findProductbyStatus(2,shop), HttpStatus.OK);
+			return new ResponseEntity<>(productService.findProductbyStatus(2, shop), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(productService.findAll(shop), HttpStatus.OK);
 	}
@@ -69,7 +71,6 @@ public class ProductController {
 		return new ResponseEntity<>(new ResponObject("success", "Thêm thành công.", productnew),
 				HttpStatus.CREATED);
 	}
-
 
 	@PutMapping("{id}")
 	public ResponseEntity<ResponObject> update(@PathVariable("id") Integer id, @RequestBody Product product) {
@@ -117,25 +118,25 @@ public class ProductController {
 
 	@GetMapping("/find")
 	public ResponseEntity<ResponObject> find(@RequestParam String key, @RequestParam String valueKeyword,
-											 @RequestParam String idCategoryItem, @RequestParam String minQuantity, @RequestParam String maxQuantity,
-											 @RequestParam String status, @RequestParam String stocking, @RequestParam("shop") int idshop) {
+			@RequestParam String idCategoryItem, @RequestParam String minQuantity, @RequestParam String maxQuantity,
+			@RequestParam String status, @RequestParam String stocking, @RequestParam("shop") int idshop) {
 		Shop shop = shopService.findById(idshop);
 		List<Product> products = productService.findAll(shop);
 		List<Object[]> listProduct = new ArrayList<>();
 
 		if (key.equals("id")) {
 			if (idCategoryItem.equals("") || idCategoryItem == null) {
-				products = productService.findByKey(valueKeyword, "", status,shop);
+				products = productService.findByKey(valueKeyword, "", status, shop);
 			} else {
 
-				products = productService.findByKey(valueKeyword, idCategoryItem, status,shop);
+				products = productService.findByKey(valueKeyword, idCategoryItem, status, shop);
 
 			}
 		} else {
 			if (idCategoryItem.equals("") || idCategoryItem == null) {
-				products = productService.findByProductName(valueKeyword, "", status,shop);
+				products = productService.findByProductName(valueKeyword, "", status, shop);
 			} else {
-				products = productService.findByProductName(valueKeyword, idCategoryItem, status,shop);
+				products = productService.findByProductName(valueKeyword, idCategoryItem, status, shop);
 			}
 		}
 		for (Product p : products) {
@@ -187,24 +188,57 @@ public class ProductController {
 		}
 	}
 
+	@PutMapping("/verify/{id}")
+	public ResponseEntity<ResponObject> verifyProduct(@PathVariable("id") Integer id) {
+		Product product = productService.findById(id);
+		product.setStatus(1);
+		productService.createProduct(product);
+		return new ResponseEntity<>(new ResponObject("SUCCESS", "verify product succsess", product),
+				HttpStatus.CREATED);
+	}
 
+	@PutMapping("/ban/{id}")
+	public ResponseEntity<ResponObject> banProduct(@PathVariable("id") Integer id) {
+		Product product = productService.findById(id);
+		product.setStatus(2);
+		productService.createProduct(product);
+		return new ResponseEntity<>(new ResponObject("SUCCESS", "ban product succsess", product),
+				HttpStatus.CREATED);
+	}
 
-    @PutMapping("/verify/{id}")
-    public ResponseEntity<ResponObject> verifyProduct(@PathVariable("id") Integer id) {
-        Product product = productService.findById(id);
-        product.setStatus(1);
-        productService.createProduct(product);
-        return new ResponseEntity<>(new ResponObject("SUCCESS", "verify product succsess", product),
-                HttpStatus.CREATED);
-    }
-    @PutMapping("/ban/{id}")
-    public ResponseEntity<ResponObject> banProduct(@PathVariable("id") Integer id) {
-        Product product = productService.findById(id);
-        product.setStatus(2);
-        productService.createProduct(product);
-        return new ResponseEntity<>(new ResponObject("SUCCESS", "ban product succsess", product),
-                HttpStatus.CREATED);
-    }
+	@GetMapping("/{id}/shop")
+	public ResponseEntity<ResponObject> getShopByProduct(@PathVariable("id") Integer id) {
+		Map<Integer, Object[]> listProducts = new HashMap<>();
+		Shop shop = null;
+		Object[] dataReturn = null;
+		// CHECK ID PRODUCT .....
+		for (Shop s : shopService.findAll()) {
+			for (Product p : s.getProducts()) {
+				if (p.getId() == id) {
+					shop = s;
+					break;
+				}
+			}
+		}
+
+		// GET LIST PRODUCT AT SHOP NO LOOP
+		if (shop != null) {
+			for (Product p : shop.getProducts()) {
+				listProducts.put(p.getId(), new Object[] { p.getId(), p.getProduct_name(), p.getPrice(),
+						p.getCategoryItem_product(), p.getStatus(), p.getImage_product() });
+			}
+			dataReturn = new Object[] { shop.getId(), shop.getShop_name(), shop.getAddressShop(), listProducts,
+					shop.getImage() };
+		}
+
+		if (listProducts.size() == 0) {
+			return new ResponseEntity<>(new ResponObject("error", "Không có thông tin", null), HttpStatus.NOT_FOUND);
+		} else {
+			return new ResponseEntity<>(new ResponObject("success", "GET LIST SUCCESS", dataReturn), HttpStatus.OK);
+		}
+
+	}
+
 	@GetMapping("/top10")
 	public ResponseEntity<List<Object[]>> getTop10Products() {
 		List<Object[]> top10Products = productService.getTop10Products();
@@ -217,17 +251,19 @@ public class ProductController {
 		}
 	}
 
-// Hiển thị những sản phẩm tương tự theo categoryItem_product
-@GetMapping("/{id}/similar-products")
-public ResponseEntity<ResponObject> findSimilarProducts(@PathVariable("id") Integer id) {
-	if (productService.existsById(id)) {
-		List<Product> similarProducts = productService.findSimilarProducts(id);
-		Object responseData = new Object[] { "similarProducts", similarProducts };
-		return new ResponseEntity<>(new ResponObject("SUCCESS", "Similar products retrieved successfully.", responseData), HttpStatus.OK);
+	// Hiển thị những sản phẩm tương tự theo categoryItem_product
+	@GetMapping("/{id}/similar-products")
+	public ResponseEntity<ResponObject> findSimilarProducts(@PathVariable("id") Integer id) {
+		if (productService.existsById(id)) {
+			List<Product> similarProducts = productService.findSimilarProducts(id);
+			Object responseData = new Object[] { "similarProducts", similarProducts };
+			return new ResponseEntity<>(
+					new ResponObject("SUCCESS", "Similar products retrieved successfully.", responseData),
+					HttpStatus.OK);
+		}
+
+		return new ResponseEntity<>(new ResponObject("NOT_FOUND", "Product with id: " + id + " not found.", null),
+				HttpStatus.NOT_FOUND);
 	}
-
-	return new ResponseEntity<>(new ResponObject("NOT_FOUND", "Product with id: " + id + " not found.", null), HttpStatus.NOT_FOUND);
-}
-
 
 }

@@ -13,7 +13,7 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
     @Query("select acc from Account acc")
     Page<Account> getAll(Pageable pageable);
 
-    @Query(value = "SELECT * FROM account where username=?1", nativeQuery = true)
+    @Query("Select a FROM Account a WHERE a.username = ?1")
 	Account findByUsername(String username);
 
 }

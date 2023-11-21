@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,8 +20,9 @@ public class RoleAccount {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "username")
-    private Account account_role;
+    @JoinColumn(name = "id_account")
+    @JsonIgnore
+    private Account account;
 
     @OneToOne
     @JoinColumn(name = "id_role")
