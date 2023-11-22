@@ -32,6 +32,7 @@ public class Order {
     private List<StatusOrder> status;
 
     private boolean pay;
+    
     @JsonManagedReference
     @OneToMany(mappedBy = "orders")
     private List<OrderDetail> orderDetails;

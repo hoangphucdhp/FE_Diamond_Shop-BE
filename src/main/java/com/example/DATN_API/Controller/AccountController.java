@@ -13,6 +13,8 @@ import com.example.DATN_API.Reponsitories.AccountReponsitory;
 import com.example.DATN_API.Service.AccountService;
 import com.example.DATN_API.Service.AddressAccountService;
 import com.example.DATN_API.Service.AddressShopService;
+import com.example.DATN_API.Service.CategoryService;
+import com.example.DATN_API.Service.IStorageSerivce;
 import com.example.DATN_API.Service.InfoAccountService;
 import com.example.DATN_API.Service.MailServiceImplement;
 import com.example.DATN_API.Service.RoleAccountService;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -67,6 +70,9 @@ public class AccountController {
 
         @Autowired
         HttpSession session;
+
+        @Autowired
+        IStorageSerivce iStorageSerivce;
 
         @GetMapping("/getAll")
         public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
@@ -337,6 +343,40 @@ public class AccountController {
                                 return new ResponseEntity<>(
                                                 new ResponObject("success", "Cập nhật thông tin thành công!",
                                                                 inAccounts),
+                                                HttpStatus.CREATED);
+
+                        }
+                } catch (Exception e) {
+                        e.printStackTrace();
+                }
+                return new ResponseEntity<>(
+                                new ResponObject("error",
+                                                "Cập nhật thông tin thất bại!",
+                                                null),
+                                HttpStatus.OK);
+        }
+
+        @PostMapping("/changepass/{username}")
+        public ResponseEntity<ResponObject> changePass(@PathVariable("username") String username,
+                        @RequestParam("oldPassword") String oldPassword,
+                        @RequestParam("newPassword") String newPassword,
+                        @RequestParam("reNewPassword") String reNewPassword) {
+                PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+                try {
+                        Account account = accountService.findByUsername(username);
+                        if (!passwordEncoder.matches(oldPassword, account.getPassword())) {
+                                return new ResponseEntity<>(new ResponObject("error", "Mật khẩu cũ không khớp!", null),
+                                                HttpStatus.OK);
+                        } else if (newPassword.length() < 8) {
+                                return new ResponseEntity<>(new ResponObject("error",
+                                                "Độ dài tối thiểu của mật khẩu là 8 ký tự!", null), HttpStatus.OK);
+                        } else if (!newPassword.equals(reNewPassword)) {
+                                return new ResponseEntity<>(new ResponObject("error", "Mật khẩu mới không khớp!", null),
+                                                HttpStatus.OK);
+                        } else {
+                                account.setPassword(newPassword);
+                                accountService.changePass(account);
+                                return new ResponseEntity<>(new ResponObject("success", "Đổi mật khẩu thành công!", account),
                                                 HttpStatus.OK);
 
                         }
@@ -344,28 +384,6 @@ public class AccountController {
                         e.printStackTrace();
                 }
                 return null;
-        }
-
-        @PostMapping("/changepass")
-        public ResponseEntity<Map<String, Object>> changePass(@RequestBody Account account) {
-                Map<String, Object> response = new HashMap<>();
-                try {
-                        Account accounts = accountService.findByUsername(account.getUsername());
-                        if (account.getPassword().equals("")) {
-                                response.put("message", "VUI LÒNG NHẬP MẬT KHẨU CŨ!");
-                        } else if (account.getPassword().length() < 6) {
-                                response.put("message", "MẬT KHẨU QUÁ NGẮN!");
-                        } else {
-                                accounts.setPassword(account.getPassword());
-                                accountService.changePass(accounts);
-                                response.put("success", true);
-                                response.put("message", "ĐỔI MẬT KHẨU THÀNH CÔNG!");
-                        }
-                } catch (Exception e) {
-                        e.printStackTrace();
-                        response.put("message", "LỖI THAY ĐỔI MẬT KHẨU");
-                }
-                return ResponseEntity.ok(response);
         }
 
         @PostMapping("/saleregis/{username}/{shop}")
@@ -469,7 +487,7 @@ public class AccountController {
 
         @PostMapping("/updateAddress/{username}/{idAddress}")
         public ResponseEntity<ResponObject> updateAddressAccount(@PathVariable("username") String username,
-                        @PathVariable("idAddress") int idAddress,@RequestBody AddressAccount addressUpdate) {
+                        @PathVariable("idAddress") int idAddress, @RequestBody AddressAccount addressUpdate) {
                 try {
                         Account account = accountService.findByUsername(username);
                         AddressAccount addressAccount = addressAccountService.findById(idAddress);
@@ -487,5 +505,21 @@ public class AccountController {
                         e.printStackTrace();
                 }
                 return null;
+        }
+
+        @PostMapping("/updateImage/{username}")
+        public ResponseEntity<ResponObject> updateImage(@PathVariable("username") String username,
+                        @RequestParam("image") Optional<MultipartFile> image) {
+                MultipartFile imageSave = image.orElse(null);
+                if (imageSave != null) {
+                        String nameImage = iStorageSerivce.storeFile(imageSave);
+                        Account account = accountService.findByUsername(username);
+                        InfoAccount inAccount = infoAccountService.findById_account(account.getId());
+                        inAccount.setImage(nameImage);
+                        infoAccountService.createProfile(inAccount);
+                        return new ResponseEntity<>(new ResponObject("success", "Thay đổi ảnh thành công!", inAccount),
+                                        HttpStatus.CREATED);
+                }
+                return new ResponseEntity<>(new ResponObject("error", "Thay đổi ảnh thất bại!", null), HttpStatus.OK);
         }
 }

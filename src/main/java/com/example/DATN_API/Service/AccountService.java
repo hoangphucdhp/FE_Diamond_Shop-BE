@@ -64,8 +64,9 @@ public class AccountService {
 
     public Account changePass(Account account) {
 		try {
-			Account accountCreate = accountReponsitory.save(account);
-			return accountCreate;
+			PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+			account.setPassword(passwordEncoder.encode(account.getPassword()));
+			return accountReponsitory.save(account);
 		} catch (Exception e) {
 			e.printStackTrace();
 			LogError.saveToLog(e);
