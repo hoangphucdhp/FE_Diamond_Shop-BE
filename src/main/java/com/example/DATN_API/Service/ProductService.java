@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,9 +24,23 @@ public class ProductService {
     ImageProductService imageProductService;
     @Autowired
     StorageService storageService;
+    @Autowired
+    ShopService shopService;
+    @Autowired
+    CategoryService categoryService;
 
-    public List<Product> findAll(Shop shop) {
-        return productReponsitory.findAllByShop(shop);
+    public Page<Product> findAll(Optional<Integer> offset, Optional<Integer> sp,
+                                 Optional<String> field, Optional<Integer> idshop) {
+        String sort = field.orElse("create_date");
+        int itemStart = offset.orElse(0);
+        int sizePage = sp.orElse(20);
+        int ishop = idshop.orElse(0);
+        if (ishop != 0) {
+            Shop shop = shopService.findById(ishop);
+            return productReponsitory.findAllByShop(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), shop);
+        }
+        return null;
+
     }
 
     public List<Product> findAll() {
@@ -33,8 +48,12 @@ public class ProductService {
 
     }
 
-    public List<Product> findProductbyStatus(int status, Shop shop) {
-        return productReponsitory.getProductbyStatus(status, shop);
+    public Page<Product> findProductbyStatus(Optional<Integer> offset, Optional<Integer> sp,
+                                             Optional<String> field, int status, Shop shop) {
+        String sort = field.orElse("create_date");
+        int itemStart = offset.orElse(0);
+        int sizePage = sp.orElse(20);
+        return productReponsitory.getProductbyStatus(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), status, shop);
     }
 
     public Page<Product> getPageProduct(Optional<Integer> stt, Optional<Integer> offset, Optional<Integer> sp,
@@ -126,13 +145,19 @@ public class ProductService {
         return productReponsitory.existsById(id) ? true : false;
     }
 
-    public List<Product> findByKey(String keyword, String idCategoryItem, String status, Shop shop) {
-        return productReponsitory.findByKey(keyword, idCategoryItem, status, shop);
-    }
-
-    public List<Product> findByProductName(String keyword, String idCategoryItem, String status, Shop shop) {
-        return productReponsitory.findByProductName(keyword, idCategoryItem, status, shop);
-    }
+//    public Page<Product> findByKey(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> keyword, Optional<String> idCategoryItem, Optional<String> status, Shop shop) {
+//        String sort = field.orElse("create_date");
+//        int itemStart = offset.orElse(0);
+//        int sizePage = sp.orElse(10);
+//        return productReponsitory.findByKey(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keyword.orElse(""), idCategoryItem.orElse(""), status.orElse(""), shop);
+//    }
+//
+//    public Page<Product> findByProductName(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> keyword, Optional<String> idCategoryItem, Optional<String> status, Shop shop) {
+//        String sort = field.orElse("create_date");
+//        int itemStart = offset.orElse(0);
+//        int sizePage = sp.orElse(10);
+//        return productReponsitory.findByProductName(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keyword.orElse(""), idCategoryItem.orElse(""), status.orElse(""), shop);
+//    }
 
     public List<Object[]> getTop10Products() {
         return productReponsitory.getTop10Products();
@@ -153,7 +178,7 @@ public class ProductService {
             return productReponsitory.getAllbyName(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords);
         } else if (keyfind.equals("shop")) {
             return productReponsitory.getAllbyShop(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords);
-        }else if (keyfind.equals("id")) {
+        } else if (keyfind.equals("id")) {
             return productReponsitory.getAllbyId(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords);
         } else if (keyfind.equals("") && !keywords.equals("")) {
             return productReponsitory.getAllbyId(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords);
@@ -162,17 +187,49 @@ public class ProductService {
         }
     }
 
-    public Product adminUpdateStatus(int id,int status){
-        Product product =findById(id);
-        if(status==0){
+    public Product adminUpdateStatus(int id, int status) {
+        Product product = findById(id);
+        if (status == 0) {
             product.setStatus(1);
-        }else if(status==1){
+        } else if (status == 1) {
             product.setStatus(2);
-        } else if (status==2) {
+        } else if (status == 2) {
             product.setStatus(0);
         }
 
         return productReponsitory.save(product);
     }
 
+    public Page<Product> searchBussiness(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> key, Optional<String> valueKeyword, Optional<Integer> cate, Optional<Integer> ishop) {
+        String sort = field.orElse("create_date");
+        int itemStart = offset.orElse(0);
+        int sizePage = sp.orElse(10);
+        String keyfind = key.orElse("");
+        String keywords = valueKeyword.orElse("");
+        int idCategoryItem = cate.orElse(0);
+        int idShop = ishop.orElse(0);
+        Shop shop = shopService.findById(idShop);
+        try {
+            if (keyfind.equals("id") && idCategoryItem == 0) {
+                return productReponsitory.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
+            } else if (keyfind.equals("product_name") && idCategoryItem == 0) {
+                return productReponsitory.getAllbyNameBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
+            } else if (keyfind.equals("") && idCategoryItem != 0) {
+                return productReponsitory.searchProductByCategory(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), idCategoryItem, shop);
+            } else if (keyfind.equals("id") && idCategoryItem != 0) {
+                CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
+                return productReponsitory.searchProductByIdAndCategory(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, categoryItem, shop);
+            } else if (keyfind.equals("product_name") && idCategoryItem != 0) {
+                CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
+                return productReponsitory.searchProductByNameAndCategory(keywords, categoryItem, shop, PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort));
+            } else if (keyfind.equals("") && idCategoryItem == 0 && !keywords.equals("")) {
+                return productReponsitory.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
+            } else {
+                return productReponsitory.findAllByShop(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), shop);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

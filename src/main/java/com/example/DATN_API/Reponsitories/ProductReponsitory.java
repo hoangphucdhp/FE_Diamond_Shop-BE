@@ -1,6 +1,6 @@
 package com.example.DATN_API.Reponsitories;
 
-import com.example.DATN_API.Entity.Account;
+import com.example.DATN_API.Entity.CategoryItem;
 import com.example.DATN_API.Entity.Product;
 import com.example.DATN_API.Entity.Shop;
 
@@ -18,23 +18,23 @@ import java.util.List;
 public interface ProductReponsitory extends JpaRepository<Product, Integer> {
 
 	@Query("select p from Product p where p.shop=?1")
-	List<Product> findAllByShop(Shop shop);
+	Page<Product> findAllByShop(Pageable pageable,Shop shop);
 
 	@Query("select p from Product p where p.status=?1 and p.shop=?2")
-	List<Product> getProductbyStatus(int status, Shop shop);
+	Page<Product> getProductbyStatus(Pageable pageable,int status, Shop shop);
 
 	@Query("select p from Product p where p.status=?1")
 	Page<Product> getPageProduct(int status, Pageable pageable);
 
-	@Query("SELECT p FROM Product p WHERE p.product_name LIKE %?1%"
-			+ " AND CAST(p.categoryItem_product.id AS STRING) LIKE %?2%" + " AND CAST(p.status AS STRING) LIKE %?3%"
-			+ " AND p.shop =?4")
-	List<Product> findByProductName(String keyword, String idCategoryItem, String status, Shop shop);
-
-	@Query("SELECT p FROM Product p WHERE CAST(p.id AS STRING) LIKE %?1%"
-			+ " AND CAST(p.categoryItem_product.id AS STRING) LIKE %?2%" + " AND CAST(p.status AS STRING) LIKE %?3%"
-			+ " AND p.shop =?4")
-	List<Product> findByKey(String keyword, String idCategoryItem, String status, Shop shop);
+//	@Query("SELECT p FROM Product p WHERE p.product_name LIKE %?1%"
+//			+ " AND CAST(p.categoryItem_product.id AS STRING) LIKE %?2%" + " AND CAST(p.status AS STRING) LIKE %?3%"
+//			+ " AND p.shop =?4")
+//	Page<Product> findByProductName(Pageable pageable,String keyword, String idCategoryItem, String status, Shop shop);
+//
+//	@Query("SELECT p FROM Product p WHERE CAST(p.id AS STRING) LIKE %?1%"
+//			+ " AND CAST(p.categoryItem_product.id AS STRING) LIKE %?2%" + " AND CAST(p.status AS STRING) LIKE %?3%"
+//			+ " AND p.shop =?4")
+//	Page<Product> findByKey(Pageable pageable,String keyword, String idCategoryItem, String status, Shop shop);
 
 	@Query(value = "SELECT TOP 10 " +
 			"p.id AS idProduct, " +
@@ -66,5 +66,21 @@ public interface ProductReponsitory extends JpaRepository<Product, Integer> {
 	@Query("select pro from Product pro")
 	Page<Product> getAll(Pageable pageable);
 
+
+	//Mdung search product bussiness CẤM ĐỤNG VÀO
+	@Query("select pro from Product pro where CAST(pro.id AS String) like %?1% and pro.categoryItem_product=?2 and pro.shop=?3")
+	Page<Product> searchProductByIdAndCategory(Pageable pageable, String id, CategoryItem categoryItem,Shop shop);
+
+	@Query("select pro from Product pro where pro.product_name like %?1% and pro.categoryItem_product=?2 and pro.shop=?3")
+	Page<Product> searchProductByNameAndCategory(String name, CategoryItem categoryItem,Shop shop,Pageable pageable);
+
+	@Query("select pro from Product pro where pro.categoryItem_product.id=?1 and pro.shop=?2")
+	Page<Product> searchProductByCategory(Pageable pageable, int categoryItem, Shop shop);
+
+	@Query("select pro from Product pro  where CAST(pro.id AS String) like %?1% and pro.shop=?2")
+	Page<Product> getAllbyIdBussiness(Pageable pageable,String name,Shop shop);
+
+	@Query("select pro from Product pro where pro.product_name like %?1% and pro.shop=?2")
+	Page<Product> getAllbyNameBussiness(Pageable pageable, String name, Shop shop);
 
 }

@@ -44,15 +44,10 @@ public class ProductController {
     }
 
     @GetMapping("/getByShop")
-    public ResponseEntity<List<Product>> getAllbyShop(@RequestParam("status") Optional<String> getstatus, @RequestParam("shop") Optional<Integer> idshop) {
-        String status = getstatus.orElse("");
-        Shop shop = shopService.findById(idshop.orElse(0));
-        if (status.equals("isactive")) {
-            return new ResponseEntity<>(productService.findProductbyStatus(1, shop), HttpStatus.OK);
-        } else if (status.equals("unactive")) {
-            return new ResponseEntity<>(productService.findProductbyStatus(2, shop), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(productService.findAll(shop), HttpStatus.OK);
+    public ResponseEntity<Page<Product>> getAllbyShop(@RequestParam("offset") Optional<Integer> offSet,
+                                                      @RequestParam("sizePage") Optional<Integer> sizePage,
+                                                      @RequestParam("sort") Optional<String> sort, @RequestParam("shop") Optional<Integer> idshop) {
+        return new ResponseEntity<>(productService.findAll(offSet, sizePage, sort, idshop), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
@@ -125,77 +120,79 @@ public class ProductController {
                 HttpStatus.CREATED);
     }
 
-    @GetMapping("/find")
-    public ResponseEntity<ResponObject> find(@RequestParam String key, @RequestParam String valueKeyword,
-                                             @RequestParam String idCategoryItem, @RequestParam String minQuantity, @RequestParam String maxQuantity,
-                                             @RequestParam String status, @RequestParam String stocking, @RequestParam("shop") int idshop) {
-        Shop shop = shopService.findById(idshop);
-        List<Product> products = productService.findAll(shop);
-        List<Object[]> listProduct = new ArrayList<>();
-
-        if (key.equals("id")) {
-            if (idCategoryItem.equals("") || idCategoryItem == null) {
-                products = productService.findByKey(valueKeyword, "", status, shop);
-            } else {
-
-                products = productService.findByKey(valueKeyword, idCategoryItem, status, shop);
-
-            }
-        } else {
-            if (idCategoryItem.equals("") || idCategoryItem == null) {
-                products = productService.findByProductName(valueKeyword, "", status, shop);
-            } else {
-                products = productService.findByProductName(valueKeyword, idCategoryItem, status, shop);
-            }
-        }
-        for (Product p : products) {
-            // GET LIST IMAGE
-            List<String> listImage = new ArrayList<>();
-            for (ImageProduct image : p.getImage_product()) {
-                listImage.add(image.getUrl());
-            }
-            // GET QUANTITY PRODUCT IN STORAGE
-            int quantityInStorage = 0;
-            for (Storage st : p.getListStorage()) {
-                quantityInStorage += st.getQuantity();
-            }
-            // GET QUANTITY PRODUCT IN ORDER
-            int quantityInOrder = 0;
-            for (OrderDetail order : p.getListOrderDetail()) {
-                quantityInOrder += order.getQuantity();
-            }
-            listProduct.add(new Object[]{p.getId(), listImage, p.getProduct_name(),
-                    p.getCategoryItem_product().getType_category_item(), p.getPrice(), p.getCreate_date(),
-                    p.getStatus(), quantityInStorage - quantityInOrder});
-        }
-        // CHECK QUANTITY
-        if (stocking.equals("")) {
-            if ((minQuantity.equals("") || minQuantity.equals("0"))
-                    && (maxQuantity.equals("") || maxQuantity.equals("0"))) {
-                return new ResponseEntity<>(new ResponObject("success", "Load sản phẩm thành công!", listProduct),
-                        HttpStatus.OK);
-            } else {
-                int max = Integer.parseInt(maxQuantity);
-                int min = Integer.parseInt(minQuantity);
-                if (min >= 0 && max >= 0 && max >= min) {
-                    List<Object[]> listFilter = listProduct.stream().filter(product -> {
-                        return (int) product[7] >= min && (int) product[7] <= max;
-                    }).collect(Collectors.toList());
-                    return new ResponseEntity<>(new ResponObject("success", "Load sản phẩm thành công!", listFilter),
-                            HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(
-                            new ResponObject("error", "Số lượng tìm kiếm không hợp lệ!", listProduct), HttpStatus.OK);
-                }
-            }
-        } else {
-            List<Object[]> listFilter = listProduct.stream().filter(product -> {
-                return (int) product[7] == 0;
-            }).collect(Collectors.toList());
-            return new ResponseEntity<>(new ResponObject("success", "Load sản phẩm thành công!", listFilter),
-                    HttpStatus.OK);
-        }
-    }
+//    @GetMapping("/find")
+//    public ResponseEntity<ResponObject> find(@RequestParam("offset") Optional<Integer> offSet,
+//                                             @RequestParam("sizePage") Optional<Integer> sizePage,
+//                                             @RequestParam("sort") Optional<String> sort, @RequestParam Optional<String> key, @RequestParam Optional<String> valueKeyword,
+//                                             @RequestParam Optional<String> idCategoryItem, @RequestParam Optional<String> minQuantity, @RequestParam Optional<String> maxQuantity,
+//                                             @RequestParam Optional<String> status, @RequestParam Optional<String> stocking, @RequestParam("shop") int idshop) {
+//        Shop shop = shopService.findById(idshop);
+//        Page<Product> products = productService.findAll(offSet, sizePage, sort, shop);
+//        List<Object[]> listProduct = new ArrayList<>();
+//
+//        if (key.equals("id")) {
+//            if (idCategoryItem.equals("") || idCategoryItem == null) {
+//                products = productService.findByKey(offSet, sizePage, sort, valueKeyword, idCategoryItem, status, shop);
+//            } else {
+//
+//                products = productService.findByKey(offSet, sizePage, sort, valueKeyword, idCategoryItem, status, shop);
+//
+//            }
+//        } else {
+//            if (idCategoryItem.equals("") || idCategoryItem == null) {
+//                products = productService.findByProductName(offSet, sizePage, sort, valueKeyword, idCategoryItem, status, shop);
+//            } else {
+//                products = productService.findByProductName(offSet, sizePage, sort, valueKeyword, idCategoryItem, status, shop);
+//            }
+//        }
+//        for (Product p : products) {
+//            // GET LIST IMAGE
+//            List<String> listImage = new ArrayList<>();
+//            for (ImageProduct image : p.getImage_product()) {
+//                listImage.add(image.getUrl());
+//            }
+//            // GET QUANTITY PRODUCT IN STORAGE
+//            int quantityInStorage = 0;
+//            for (Storage st : p.getListStorage()) {
+//                quantityInStorage += st.getQuantity();
+//            }
+//            // GET QUANTITY PRODUCT IN ORDER
+//            int quantityInOrder = 0;
+//            for (OrderDetail order : p.getListOrderDetail()) {
+//                quantityInOrder += order.getQuantity();
+//            }
+//            listProduct.add(new Object[]{p.getId(), listImage, p.getProduct_name(),
+//                    p.getCategoryItem_product().getType_category_item(), p.getPrice(), p.getCreate_date(),
+//                    p.getStatus(), quantityInStorage - quantityInOrder});
+//        }
+//        // CHECK QUANTITY
+//        if (stocking.equals("")) {
+//            if ((minQuantity.equals("") || minQuantity.equals("0"))
+//                    && (maxQuantity.equals("") || maxQuantity.equals("0"))) {
+//                return new ResponseEntity<>(new ResponObject("success", "Load sản phẩm thành công!", listProduct),
+//                        HttpStatus.OK);
+//            } else {
+//                int max = Integer.parseInt(maxQuantity.get());
+//                int min = Integer.parseInt(minQuantity.get());
+//                if (min >= 0 && max >= 0 && max >= min) {
+//                    List<Object[]> listFilter = listProduct.stream().filter(product -> {
+//                        return (int) product[7] >= min && (int) product[7] <= max;
+//                    }).collect(Collectors.toList());
+//                    return new ResponseEntity<>(new ResponObject("success", "Load sản phẩm thành công!", listFilter),
+//                            HttpStatus.OK);
+//                } else {
+//                    return new ResponseEntity<>(
+//                            new ResponObject("error", "Số lượng tìm kiếm không hợp lệ!", listProduct), HttpStatus.OK);
+//                }
+//            }
+//        } else {
+//            List<Object[]> listFilter = listProduct.stream().filter(product -> {
+//                return (int) product[7] == 0;
+//            }).collect(Collectors.toList());
+//            return new ResponseEntity<>(new ResponObject("success", "Load sản phẩm thành công!", listFilter),
+//                    HttpStatus.OK);
+//        }
+//    }
 
 
     @PutMapping("/verify/{id}")
@@ -253,6 +250,7 @@ public class ProductController {
                         "SUCCESS", "GET ALL ACCOUNT", accounts));
 
     }
+
     @PutMapping("/adminupdate/{id}")
     public ResponseEntity<ResponObject> AdminProduct(@PathVariable("id") Integer id) {
         Product product = productService.findById(id);
@@ -263,9 +261,18 @@ public class ProductController {
     }
 
     @PutMapping("/adminupdatestatus/{id}")
-    public ResponseEntity<ResponObject> AdminUpdateProduct(@PathVariable("id") Integer id,@RequestParam("status") Integer status) {
-        return new ResponseEntity<>(new ResponObject("SUCCESS", "Cập nhật thành công", productService.adminUpdateStatus(id,status)),
+    public ResponseEntity<ResponObject> AdminUpdateProduct(@PathVariable("id") Integer id, @RequestParam("status") Integer status) {
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Cập nhật thành công", productService.adminUpdateStatus(id, status)),
                 HttpStatus.CREATED);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ResponObject> search( @RequestParam("key") Optional<String> key, @RequestParam("keyword") Optional<String> valueKeyword,
+                                               @RequestParam("category") Optional<Integer> idCategoryItem, @RequestParam("shop")Optional<Integer> idshop,@RequestParam("offset") Optional<Integer> offSet,
+                                                @RequestParam("sizePage") Optional<Integer> sizePage,
+                                                @RequestParam("sort") Optional<String> sort) {
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBussiness(offSet, sizePage, sort, key, valueKeyword, idCategoryItem, idshop)),
+                HttpStatus.OK);
     }
 
 
