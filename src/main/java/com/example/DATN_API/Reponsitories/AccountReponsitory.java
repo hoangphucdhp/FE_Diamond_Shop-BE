@@ -10,11 +10,20 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AccountReponsitory extends JpaRepository<Account, Integer> {
-    @Query("select acc from Account acc")
-    Page<Account> getAll(Pageable pageable);
 
     @Query("Select a FROM Account a WHERE a.username = ?1")
 	Account findByUsername(String username);
 
+    @Query("Select a FROM Account a JOIN a.infoAccount in WHERE in.email = ?1")
+    Account findByEmail(String email);
+
+    @Query("select acc from Account acc")
+    Page<Account> getAll(Pageable pageable);
+
+    @Query("select acc from Account acc where acc.username like %?1%")
+    Page<Account> getAllfindbyUsername(Pageable pageable,String username);
+
+    @Query("select acc from Account acc  where acc.infoAccount.fullname like %?1%")
+    Page<Account> getAllfindbyFullname(Pageable pageable,String fullname);
 }
 

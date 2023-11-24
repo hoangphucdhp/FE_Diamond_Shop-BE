@@ -22,11 +22,51 @@ public class AccountService {
     AccountReponsitory accountReponsitory;
 
     public Account findByUsername(String username) {
-		return accountReponsitory.findByUsername(username);
-	}
+        return accountReponsitory.findByUsername(username);
+    }
 
     public List<Account> findAll() {
         return accountReponsitory.findAll();
+    }
+
+    public Page<Account> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field,
+            Optional<String> sortType, Optional<String> key, Optional<String> keyword) {
+        String sortby = field.orElse("username");
+        int itemStart = offset.orElse(0);
+        int sizePage = sp.orElse(10);
+        String keyfind = key.orElse("");
+        String keywords = keyword.orElse("");
+
+        Sort.Direction direction;
+
+        // Sort
+        String typeSort = sortType.orElse("asc");
+
+        if (sortby == null || sortby.isEmpty()) {
+            sortby = "username";
+        }
+
+        if (typeSort == null || typeSort.isEmpty()) {
+            typeSort = "asc";
+        }
+
+        if (typeSort.equals("asc")) {
+            direction = Sort.Direction.ASC;
+        } else {
+            direction = Sort.Direction.DESC;
+        }
+
+        Sort sort = Sort.by(direction, sortby);
+
+        if (keyfind.equals("username")) {
+            return accountReponsitory.getAllfindbyUsername(PageRequest.of(itemStart, sizePage, sort), keywords);
+        } else if (keyfind.equals("fullname")) {
+            return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+        } else if (keyfind.equals("") && !keywords.equals("")) {
+            return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+        } else {
+            return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
+        }
     }
 
     public Page<Account> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field) {
@@ -50,27 +90,43 @@ public class AccountService {
         return account;
     }
 
-  public Account createAccount(Account account) {
-		try {
-			PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-			account.setPassword(passwordEncoder.encode(account.getPassword()));
-			return accountReponsitory.save(account);
-		} catch (Exception e) {
-			e.printStackTrace();
-			LogError.saveToLog(e);
-		}
-		return null;
-	}
+    public Account createAccount(Account account) {
+        try {
+            PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+            account.setPassword(passwordEncoder.encode(account.getPassword()));
+            return accountReponsitory.save(account);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogError.saveToLog(e);
+        }
+        return null;
+    }
 
     public Account changePass(Account account) {
-		try {
-			PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-			account.setPassword(passwordEncoder.encode(account.getPassword()));
-			return accountReponsitory.save(account);
-		} catch (Exception e) {
-			e.printStackTrace();
-			LogError.saveToLog(e);
-		}
-		return null;
-	}
+        try {
+            PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+            account.setPassword(passwordEncoder.encode(account.getPassword()));
+            return accountReponsitory.save(account);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogError.saveToLog(e);
+        }
+        return null;
+    }
+
+    public Account findByEmail(String email) {
+        return accountReponsitory.findByEmail(email);
+    }
+
+    public Account AdminUpdate(int id, boolean status) {
+        try {
+            Account account = findById(id);
+            account.setStatus(status);
+            return accountReponsitory.save(account);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogError.saveToLog(e);
+        }
+        return null;
+    }
 }

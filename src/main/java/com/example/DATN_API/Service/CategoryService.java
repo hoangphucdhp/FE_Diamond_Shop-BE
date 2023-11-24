@@ -8,6 +8,9 @@ import com.example.DATN_API.Entity.Category;
 import com.example.DATN_API.Entity.CategoryItem;
 import com.example.DATN_API.Reponsitories.AccountReponsitory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.DATN_API.Reponsitories.CategoryItemReponsitory;
@@ -22,8 +25,37 @@ public class CategoryService {
     @Autowired
     AccountReponsitory accountReponsitory;
 
-    public List<Category> findAll() {
-        return CategoryReponsitory.findAll();
+    public Page<Category> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> sortType, Optional<String> key, Optional<String> keyword) {
+        String sortby = field.orElse("type_category");
+        int itemStart = offset.orElse(0);
+        int sizePage = sp.orElse(5);
+        String keyfind = key.orElse("");
+        String keywords = keyword.orElse("");
+
+        Sort.Direction direction;
+        // Sort
+        String typeSort = sortType.orElse("asc");
+        if (sortby == null || sortby.isEmpty()) {
+            sortby = "type_category";
+        }
+        if (typeSort == null || typeSort.isEmpty()) {
+            typeSort = "asc";
+        }
+        if (typeSort.equals("asc")) {
+            direction = Sort.Direction.ASC;
+        } else {
+            direction = Sort.Direction.DESC;
+        }
+        Sort sort = Sort.by(direction, sortby);
+        if(keyfind.equals("id")){
+            return CategoryReponsitory.getAllById(PageRequest.of(itemStart, sizePage, sort),keywords);
+        } else if (keyfind.equals("type_category")) {
+            return CategoryReponsitory.getAllByType_category(PageRequest.of(itemStart, sizePage, sort),keywords);
+        }else if(keyfind.equals("")&& !keywords.equals("")){
+            return CategoryReponsitory.getAllById(PageRequest.of(itemStart, sizePage, sort),keywords);
+        }else{
+            return CategoryReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
+        }
     }
 
     public Category findByIdCategory(int id) {
@@ -40,14 +72,20 @@ public class CategoryService {
     }
 
     public Boolean deleteCategory(int id) {
-        Category category = findByIdCategory(id);
-        if (category.getListCategory().size()<1) {
-            ImageService.deleteFile("/uploads/"+category.getImage());
-            CategoryReponsitory.deleteById(id);
-            return true;
-        } else {
-            return false;
+        try {
+            Category category = findByIdCategory(id);
+            if (category.getListCategory().size() < 1) {
+
+                CategoryReponsitory.deleteById(id);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            LogError.saveToLog(e);
         }
+        return false;
+
     }
 
     public Boolean existsByIdCategory(Integer id) {

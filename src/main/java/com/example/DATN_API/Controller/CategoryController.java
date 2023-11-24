@@ -1,4 +1,3 @@
-
 package com.example.DATN_API.Controller;
 
 import java.util.Date;
@@ -11,6 +10,7 @@ import com.example.DATN_API.Entity.CategoryItem;
 import com.example.DATN_API.Entity.ResponObject;
 import com.example.DATN_API.Service.IStorageSerivce;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +28,13 @@ public class CategoryController {
     IStorageSerivce iStorageSerivce;
 
     @GetMapping()
-    public ResponseEntity<List<Category>> getAll() {
-        List<Category> categories = CategoryService.findAll();
+    public ResponseEntity<Page<Category>> getAll(@RequestParam("offset") Optional<Integer> offSet,
+                                                 @RequestParam("sizePage") Optional<Integer> sizePage,
+                                                 @RequestParam("sort") Optional<String> sort,
+                                                 @RequestParam("sortType") Optional<String> sortType,
+                                                 @RequestParam("key") Optional<String> keyfind,
+                                                 @RequestParam("keyword") Optional<String> keyword) {
+        Page<Category> categories = CategoryService.findAll(offSet, sizePage, sort,sortType, keyfind, keyword);
         for (Category category : categories) {
             category.removeDuplicateCategoryItems();
         }
@@ -54,7 +59,7 @@ public class CategoryController {
         category.setType_category(type_category);
         category.setCreate_date(create_date);
         Category newcate = CategoryService.createCategory(category);
-        return new ResponseEntity<>(new ResponObject("success", "Thêm thành công.", newcate),
+        return new ResponseEntity<>(new ResponObject("success", "Thêm thành công!", newcate),
                 HttpStatus.CREATED);
     }
 
@@ -63,32 +68,24 @@ public class CategoryController {
         MultipartFile imagesave = image.orElse(null);
         String type_categorysave = type_category.orElse("");
         Category categoryold = CategoryService.findByIdCategory(id);
-        Category categorysave = new Category();
-        categorysave.setId(categoryold.getId());
-        categorysave.setType_category(categoryold.getType_category());
-        categorysave.setAccountCreateCategory(categoryold.getAccountCreateCategory());
-        categorysave.setStatus(categoryold.getStatus());
-        categorysave.setCreate_date(categoryold.getCreate_date());
         if (imagesave == null && type_categorysave.equals("")) {
-            categorysave.setImage(categoryold.getImage());
-            categorysave.setType_category(categoryold.getType_category());
-            CategoryService.updateCategory(categorysave);
+            categoryold.setType_category(categoryold.getType_category());
+            CategoryService.updateCategory(categoryold);
         } else if (imagesave == null && !type_categorysave.equals("")) {
-            categorysave.setImage(categoryold.getImage());
-            categorysave.setType_category(type_categorysave);
-            CategoryService.updateCategory(categorysave);
+            categoryold.setType_category(type_categorysave);
+            CategoryService.updateCategory(categoryold);
         } else if (imagesave != null && type_categorysave.equals("")) {
             String name = iStorageSerivce.storeFile(imagesave);
-            categorysave.setImage(name);
-            categorysave.setType_category(categoryold.getType_category());
-            CategoryService.updateCategory(categorysave);
+            categoryold.setImage(name);
+            categoryold.setType_category(categoryold.getType_category());
+            CategoryService.updateCategory(categoryold);
         } else {
             String name = iStorageSerivce.storeFile(imagesave);
-            categorysave.setImage(name);
-            categorysave.setType_category(type_categorysave);
-            CategoryService.updateCategory(categorysave);
+            categoryold.setImage(name);
+            categoryold.setType_category(type_categorysave);
+            CategoryService.updateCategory(categoryold);
         }
-        return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", categorysave), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", categoryold), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
