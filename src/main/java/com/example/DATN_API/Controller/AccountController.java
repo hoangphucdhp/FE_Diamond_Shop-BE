@@ -102,10 +102,9 @@ public class AccountController {
     @GetMapping("/getAll")
     public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
                                                @RequestParam("sizePage") Optional<Integer> sizePage,
-                                               @RequestParam("sort") Optional<String> sort,
                                                @RequestParam("key") Optional<String> keyfind,
-                                               @RequestParam("keyword") Optional<String> keyword) {
-        Page<Account> accounts = accountService.findAll(offSet, sizePage, sort, keyfind, keyword);
+                                               @RequestParam("keyword") Optional<String> keyword,@RequestParam("sort") Optional<String> sort,@RequestParam("sortType") Optional<String> sortType) {
+        Page<Account> accounts = accountService.findAll(offSet, sizePage, sort,sortType, keyfind, keyword);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponObject(
                         "SUCCESS", "GET ALL ACCOUNT", accounts));

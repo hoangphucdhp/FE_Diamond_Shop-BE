@@ -3,9 +3,6 @@ package com.example.DATN_API.Controller;
 import com.example.DATN_API.Entity.Account;
 import com.example.DATN_API.Entity.Product;
 import com.example.DATN_API.Entity.Rate;
-import com.example.DATN_API.Reponsitories.AccountReponsitory;
-import com.example.DATN_API.Reponsitories.ProductReponsitory;
-import com.example.DATN_API.Reponsitories.RateRepository;
 import com.example.DATN_API.Service.AccountService;
 import com.example.DATN_API.Service.ProductService;
 import com.example.DATN_API.Service.RateService;
@@ -14,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

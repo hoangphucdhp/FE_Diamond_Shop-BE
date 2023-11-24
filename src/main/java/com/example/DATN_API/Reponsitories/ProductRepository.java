@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductReponsitory extends JpaRepository<Product, Integer> {
+public interface ProductRepository extends JpaRepository<Product, Integer> {
 
 	@Query("select p from Product p where p.shop=?1")
 	Page<Product> findAllByShop(Pageable pageable,Shop shop);

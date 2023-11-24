@@ -10,6 +10,7 @@ import com.example.DATN_API.Entity.CategoryItem;
 import com.example.DATN_API.Entity.ResponObject;
 import com.example.DATN_API.Service.IStorageSerivce;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +28,13 @@ public class CategoryController {
     IStorageSerivce iStorageSerivce;
 
     @GetMapping()
-    public ResponseEntity<List<Category>> getAll() {
-        List<Category> categories = CategoryService.findAll();
+    public ResponseEntity<Page<Category>> getAll(@RequestParam("offset") Optional<Integer> offSet,
+                                                 @RequestParam("sizePage") Optional<Integer> sizePage,
+                                                 @RequestParam("sort") Optional<String> sort,
+                                                 @RequestParam("sortType") Optional<String> sortType,
+                                                 @RequestParam("key") Optional<String> keyfind,
+                                                 @RequestParam("keyword") Optional<String> keyword) {
+        Page<Category> categories = CategoryService.findAll(offSet, sizePage, sort,sortType, keyfind, keyword);
         for (Category category : categories) {
             category.removeDuplicateCategoryItems();
         }

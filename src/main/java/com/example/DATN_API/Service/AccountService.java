@@ -35,24 +35,44 @@ public class AccountService {
         return accountReponsitory.findAll();
     }
 
-    public Page<Account> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> key, Optional<String> keyword) {
-        String sort = field.orElse("create_date");
+    public Page<Account> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> sortType, Optional<String> key, Optional<String> keyword) {
+        String sortby = field.orElse("username");
         int itemStart = offset.orElse(0);
         int sizePage = sp.orElse(10);
         String keyfind = key.orElse("");
         String keywords = keyword.orElse("");
-        if (keyfind.equals("username")) {
-            System.out.println(1);
-            return accountReponsitory.getAllfindbyUsername(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords);
-        } else if (keyfind.equals("fullname")) {
-            System.out.println(2);
-            return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords);
-        } else if (keyfind.equals("") && !keywords.equals("")) {
-            System.out.println(3);
-            return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords);
+
+        Sort.Direction direction;
+
+        // Sort
+        String typeSort = sortType.orElse("asc");
+
+
+        if (sortby == null || sortby.isEmpty()) {
+            sortby = "username";
+        }
+
+        if (typeSort == null || typeSort.isEmpty()) {
+            typeSort = "asc";
+        }
+
+
+        if (typeSort.equals("asc")) {
+            direction = Sort.Direction.ASC;
         } else {
-            System.out.println(4);
-            return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort));
+            direction = Sort.Direction.DESC;
+        }
+
+        Sort sort = Sort.by(direction, sortby);
+
+        if (keyfind.equals("username")) {
+            return accountReponsitory.getAllfindbyUsername(PageRequest.of(itemStart, sizePage, sort), keywords);
+        } else if (keyfind.equals("fullname")) {
+            return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+        } else if (keyfind.equals("") && !keywords.equals("")) {
+            return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+        } else {
+            return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
         }
     }
 

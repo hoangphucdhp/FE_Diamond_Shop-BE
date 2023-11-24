@@ -242,9 +242,10 @@ public class ProductController {
     public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
                                                @RequestParam("sizePage") Optional<Integer> sizePage,
                                                @RequestParam("sort") Optional<String> sort,
+                                               @RequestParam("sortType") Optional<String> sortType,
                                                @RequestParam("key") Optional<String> keyfind,
                                                @RequestParam("keyword") Optional<String> keyword) {
-        Page<Product> accounts = productService.findAll(offSet, sizePage, sort, keyfind, keyword);
+        Page<Product> accounts = productService.findAll(offSet, sizePage, sort,sortType, keyfind, keyword);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponObject(
                         "SUCCESS", "GET ALL ACCOUNT", accounts));
@@ -270,8 +271,8 @@ public class ProductController {
     public ResponseEntity<ResponObject> search( @RequestParam("key") Optional<String> key, @RequestParam("keyword") Optional<String> valueKeyword,
                                                @RequestParam("category") Optional<Integer> idCategoryItem, @RequestParam("shop")Optional<Integer> idshop,@RequestParam("offset") Optional<Integer> offSet,
                                                 @RequestParam("sizePage") Optional<Integer> sizePage,
-                                                @RequestParam("sort") Optional<String> sort) {
-        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBussiness(offSet, sizePage, sort, key, valueKeyword, idCategoryItem, idshop)),
+                                                @RequestParam("sort") Optional<String> sort,@RequestParam("sortType") Optional<String> sortType) {
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBusiness(offSet, sizePage, sort,sortType, key, valueKeyword, idCategoryItem, idshop)),
                 HttpStatus.OK);
     }
 
