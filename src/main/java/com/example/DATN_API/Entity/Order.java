@@ -25,15 +25,20 @@ public class Order {
 
     private Date create_date;
 
+
     @ManyToOne
     @JoinColumn(name = "id_address_order")
     private AddressAccount address;
+
+    private String address_order;
+
 
 
     @OneToMany(mappedBy = "order")
     private List<StatusOrder> status;
 
     private boolean pay;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "orders")
     private List<OrderDetail> orderDetails;

@@ -29,7 +29,8 @@ public class InfoAccount {
 
     private String phone;
 
-    private int gender;
+    private boolean gender;
+
 
     private String email;
 

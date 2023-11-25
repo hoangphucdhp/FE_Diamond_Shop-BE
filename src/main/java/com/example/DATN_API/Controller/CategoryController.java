@@ -1,22 +1,21 @@
 package com.example.DATN_API.Controller;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
 import com.example.DATN_API.Entity.Account;
 import com.example.DATN_API.Entity.Category;
 import com.example.DATN_API.Entity.CategoryItem;
 import com.example.DATN_API.Entity.ResponObject;
+import com.example.DATN_API.Service.CategoryService;
 import com.example.DATN_API.Service.IStorageSerivce;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.example.DATN_API.Service.CategoryService;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/category")
@@ -59,7 +58,8 @@ public class CategoryController {
         category.setType_category(type_category);
         category.setCreate_date(create_date);
         Category newcate = CategoryService.createCategory(category);
-        return new ResponseEntity<>(new ResponObject("success", "Thêm thành công.", newcate),
+
+        return new ResponseEntity<>(new ResponObject("success", "Thêm thành công!", newcate),
                 HttpStatus.CREATED);
     }
 
@@ -69,6 +69,9 @@ public class CategoryController {
         String type_categorysave = type_category.orElse("");
         Category categoryold = CategoryService.findByIdCategory(id);
         if (imagesave == null && type_categorysave.equals("")) {
+            String name = iStorageSerivce.storeFile(imagesave);
+            categoryold.setImage(name);
+            categoryold.setType_category(categoryold.getType_category());
             CategoryService.updateCategory(categoryold);
         } else if (imagesave == null && !type_categorysave.equals("")) {
             categoryold.setType_category(type_categorysave);
@@ -78,9 +81,6 @@ public class CategoryController {
             categoryold.setImage(name);
             CategoryService.updateCategory(categoryold);
         } else {
-            String name = iStorageSerivce.storeFile(imagesave);
-            categoryold.setImage(name);
-            categoryold.setType_category(type_categorysave);
             CategoryService.updateCategory(categoryold);
         }
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", categoryold), HttpStatus.OK);

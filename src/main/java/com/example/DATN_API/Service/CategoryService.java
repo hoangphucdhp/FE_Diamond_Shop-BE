@@ -144,4 +144,8 @@ public class CategoryService {
         Optional<Account> newaccount = accountReponsitory.findById(id);
         return newaccount.get();
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

@@ -1,37 +1,15 @@
 package com.example.DATN_API.Controller;
 
-import com.example.DATN_API.Entity.Account;
-import com.example.DATN_API.Entity.AddressShop;
-import com.example.DATN_API.Entity.InfoAccount;
-import com.example.DATN_API.Entity.MailInformation;
-import com.example.DATN_API.Entity.ResponObject;
-import com.example.DATN_API.Entity.Role;
-import com.example.DATN_API.Entity.RoleAccount;
-import com.example.DATN_API.Entity.Shop;
-import com.example.DATN_API.Reponsitories.AccountReponsitory;
-import com.example.DATN_API.Service.AccountService;
-import com.example.DATN_API.Service.AddressAccountService;
-import com.example.DATN_API.Service.AddressShopService;
-import com.example.DATN_API.Service.InfoAccountService;
-import com.example.DATN_API.Service.MailServiceImplement;
-import com.example.DATN_API.Service.RoleAccountService;
-import com.example.DATN_API.Service.ShopService;
-
+import com.example.DATN_API.Entity.*;
+import com.example.DATN_API.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @RestController
@@ -432,4 +410,5 @@ public class AccountController {
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", newaccount),
                 HttpStatus.OK);
     }
+
 }

@@ -10,6 +10,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AccountReponsitory extends JpaRepository<Account, Integer> {
+
+
+    @Query("Select a FROM Account a JOIN a.infoAccount in WHERE in.email = ?1")
+    Account findByEmail(String email);
+
+
     @Query("select acc from Account acc")
     Page<Account> getAll(Pageable pageable);
 
@@ -18,6 +24,7 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
 
     @Query("select acc from Account acc  where acc.infoAccount.fullname like %?1%")
     Page<Account> getAllfindbyFullname(Pageable pageable,String fullname);
+
 
 
     @Query(value = "SELECT * FROM account where username=?1", nativeQuery = true)

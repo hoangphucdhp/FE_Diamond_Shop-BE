@@ -2,11 +2,15 @@ package com.example.DATN_API.Service;
 
 import com.example.DATN_API.Entity.Account;
 import com.example.DATN_API.Entity.Order;
+
 import com.example.DATN_API.Entity.Role;
 import com.example.DATN_API.Entity.RoleAccount;
 import com.example.DATN_API.Reponsitories.AccountReponsitory;
 import com.example.DATN_API.Reponsitories.RoleAccountReponsitory;
 import com.example.DATN_API.Reponsitories.RoleReponsitory;
+
+import com.example.DATN_API.Reponsitories.AccountReponsitory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,8 +28,10 @@ import java.util.Optional;
 public class AccountService {
     @Autowired
     AccountReponsitory accountReponsitory;
+
     @Autowired
     RoleAccountReponsitory roleAccountReponsitory;
+
 
     public Account findByUsername(String username) {
         return accountReponsitory.findByUsername(username);
@@ -35,93 +41,112 @@ public class AccountService {
         return accountReponsitory.findAll();
     }
 
+
     public Page<Account> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> sortType, Optional<String> key, Optional<String> keyword) {
-        String sortby = field.orElse("username");
-        int itemStart = offset.orElse(0);
-        int sizePage = sp.orElse(10);
-        String keyfind = key.orElse("");
-        String keywords = keyword.orElse("");
 
-        Sort.Direction direction;
+            String sortby = field.orElse("username");
+            int itemStart = offset.orElse(0);
+            int sizePage = sp.orElse(10);
+            String keyfind = key.orElse("");
+            String keywords = keyword.orElse("");
 
-        // Sort
-        String typeSort = sortType.orElse("asc");
+            Sort.Direction direction;
 
+            // Sort
+            String typeSort = sortType.orElse("asc");
 
-        if (sortby == null || sortby.isEmpty()) {
-            sortby = "username";
+            if (sortby == null || sortby.isEmpty()) {
+                sortby = "username";
+            }
+
+            if (typeSort == null || typeSort.isEmpty()) {
+                typeSort = "asc";
+            }
+
+            if (typeSort.equals("asc")) {
+                direction = Sort.Direction.ASC;
+            } else {
+                direction = Sort.Direction.DESC;
+            }
+
+            Sort sort = Sort.by(direction, sortby);
+
+            if (keyfind.equals("username")) {
+                return accountReponsitory.getAllfindbyUsername(PageRequest.of(itemStart, sizePage, sort), keywords);
+            } else if (keyfind.equals("fullname")) {
+                return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+            } else if (keyfind.equals("") && !keywords.equals("")) {
+                return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+            } else {
+                return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
+            }
         }
 
-        if (typeSort == null || typeSort.isEmpty()) {
-            typeSort = "asc";
+
+        public Page<Account> findAll (Optional < Integer > offset, Optional < Integer > sp, Optional < String > field){
+            String sort = field.orElse("create_date");
+            int itemStart = offset.orElse(0);
+            ;
+            int sizePage = sp.orElse(10);
+            return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort));
         }
 
 
-        if (typeSort.equals("asc")) {
-            direction = Sort.Direction.ASC;
-        } else {
-            direction = Sort.Direction.DESC;
+        public Account findById (Integer id){
+            return accountReponsitory.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tài khoản không được tìm thấy"));
         }
 
-        Sort sort = Sort.by(direction, sortby);
-
-        if (keyfind.equals("username")) {
-            return accountReponsitory.getAllfindbyUsername(PageRequest.of(itemStart, sizePage, sort), keywords);
-        } else if (keyfind.equals("fullname")) {
-            return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
-        } else if (keyfind.equals("") && !keywords.equals("")) {
-            return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
-        } else {
-            return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
+        public Account banAccount (Integer id){
+            Optional<Account> acc = accountReponsitory.findById(id);
+            Account account = acc.get();
+            account.setStatus(false);
+            accountReponsitory.save(account);
+            return account;
         }
-    }
 
-    public Account findById(Integer id) {
-        return accountReponsitory.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tài khoản không được tìm thấy"));
-    }
+        public Account createAccount (Account account){
+            try {
+                PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+                account.setPassword(passwordEncoder.encode(account.getPassword()));
+                return accountReponsitory.save(account);
 
-    public Account banAccount(Integer id) {
-        Optional<Account> acc = accountReponsitory.findById(id);
-        Account account = acc.get();
-        account.setStatus(false);
-        accountReponsitory.save(account);
-        return account;
-    }
-
-    public Account createAccount(Account account) {
-        try {
-            PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-            Account accountCreate = accountReponsitory.save(account);
-            accountCreate.setPassword(passwordEncoder.encode(accountCreate.getPassword()));
-            return accountCreate;
-        } catch (Exception e) {
-            e.printStackTrace();
-            LogError.saveToLog(e);
+            } catch (Exception e) {
+                e.printStackTrace();
+                LogError.saveToLog(e);
+            }
+            return null;
         }
-        return null;
-    }
 
-    public Account changePass(Account account) {
-        try {
-            Account accountCreate = accountReponsitory.save(account);
-            return accountCreate;
-        } catch (Exception e) {
-            e.printStackTrace();
-            LogError.saveToLog(e);
-        }
-        return null;
-    }
+        public Account changePass (Account account){
+            try {
+                PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+                account.setPassword(passwordEncoder.encode(account.getPassword()));
+                return accountReponsitory.save(account);
 
-    public Account AdminUpdate(int id, boolean status) {
-        try {
-            Account account = findById(id);
-            account.setStatus(status);
-            return accountReponsitory.save(account);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LogError.saveToLog(e);
+            } catch (Exception e) {
+                e.printStackTrace();
+                LogError.saveToLog(e);
+            }
+            return null;
         }
-        return null;
-    }
+
+
+        public Account findByEmail (String email){
+            return accountReponsitory.findByEmail(email);
+        }
+
+
+        public Account AdminUpdate ( int id, boolean status){
+            try {
+                Account account = findById(id);
+                account.setStatus(status);
+                return accountReponsitory.save(account);
+            } catch (Exception e) {
+                e.printStackTrace();
+                LogError.saveToLog(e);
+            }
+            return null;
+        }
+
 }
