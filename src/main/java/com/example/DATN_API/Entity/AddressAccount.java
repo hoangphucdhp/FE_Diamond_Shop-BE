@@ -29,9 +29,4 @@ public class AddressAccount {
     private String address;
     private boolean status;
 
-
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "address")
-    @JsonIgnore
-    List<Order> orders;
-
 }

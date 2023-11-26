@@ -1,25 +1,17 @@
 package com.example.DATN_API.Service;
 
 import com.example.DATN_API.Entity.Account;
-import com.example.DATN_API.Entity.Order;
-
-import com.example.DATN_API.Entity.Role;
-import com.example.DATN_API.Entity.RoleAccount;
 import com.example.DATN_API.Reponsitories.AccountReponsitory;
 import com.example.DATN_API.Reponsitories.RoleAccountReponsitory;
-import com.example.DATN_API.Reponsitories.RoleReponsitory;
-
-import com.example.DATN_API.Reponsitories.AccountReponsitory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,9 +34,9 @@ public class AccountService {
     }
 
 
-    public Page<Account> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> sortType, Optional<String> key, Optional<String> keyword) {
+    public Page<Account> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> sortType, Optional<String> key, Optional<String> keyword, Optional<String> ischeck) {
 
-            String sortby = field.orElse("username");
+            String sortby = field.orElse("id");
             int itemStart = offset.orElse(0);
             int sizePage = sp.orElse(10);
             String keyfind = key.orElse("");
@@ -56,7 +48,7 @@ public class AccountService {
             String typeSort = sortType.orElse("asc");
 
             if (sortby == null || sortby.isEmpty()) {
-                sortby = "username";
+                sortby = "id";
             }
 
             if (typeSort == null || typeSort.isEmpty()) {
@@ -70,16 +62,28 @@ public class AccountService {
             }
 
             Sort sort = Sort.by(direction, sortby);
-
-            if (keyfind.equals("username")) {
-                return accountReponsitory.getAllfindbyUsername(PageRequest.of(itemStart, sizePage, sort), keywords);
-            } else if (keyfind.equals("fullname")) {
-                return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
-            } else if (keyfind.equals("") && !keywords.equals("")) {
-                return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
-            } else {
-                return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
+            if(ischeck.isPresent()&&ischeck.get().equals("account")){
+                if (keyfind.equals("username")) {
+                    return accountReponsitory.getAllfindbyUsername(PageRequest.of(itemStart, sizePage, sort), keywords);
+                } else if (keyfind.equals("fullname")) {
+                    return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+                } else if (keyfind.equals("") && !keywords.equals("")) {
+                    return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+                } else {
+                    return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
+                }
+            }else{
+                if(keyfind.equals(("shop_name"))){
+                    return accountReponsitory.getByShopName(PageRequest.of(itemStart, sizePage, sort), keywords);
+                }else if (keyfind.equals("fullname")) {
+                    return accountReponsitory.getAllfindbyFullname(PageRequest.of(itemStart, sizePage, sort), keywords);
+                } else if (keyfind.equals("") && !keywords.equals("")) {
+                    return accountReponsitory.getByShopName(PageRequest.of(itemStart, sizePage, sort), keywords);
+                }else {
+                    return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
+                }
             }
+
         }
 
 

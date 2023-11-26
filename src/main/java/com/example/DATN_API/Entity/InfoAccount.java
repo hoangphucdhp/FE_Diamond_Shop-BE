@@ -31,7 +31,6 @@ public class InfoAccount {
 
     private boolean gender;
 
-
     private String email;
 
     private String image;

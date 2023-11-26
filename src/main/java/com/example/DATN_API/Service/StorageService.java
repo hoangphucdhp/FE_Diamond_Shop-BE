@@ -44,8 +44,4 @@ public class StorageService {
     public Boolean existsById(Integer id) {
         return StorageReponsitory.existsById(id) ? true : false;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/main

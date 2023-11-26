@@ -32,7 +32,6 @@ public class Account {
     @OneToMany(mappedBy = "account")
     public List<CategoryItem> listCategoryItem;
 
-
     @OneToMany(mappedBy = "account")
     public List<RoleAccount> listRole;
 
@@ -42,10 +41,8 @@ public class Account {
     @OneToOne(mappedBy = "Infaccount")
     private InfoAccount infoAccount;
 
-
     @OneToMany(mappedBy = "Addressaccount")
     private List<AddressAccount> address_account;
-
 
     @OneToMany(mappedBy = "account_like")
     private List<LikeProduct> likeProductes;
@@ -55,10 +52,4 @@ public class Account {
 
     @OneToMany(mappedBy = "account_check")
     List<StatusOrder> statusOrders;
-
-
-    @OneToOne(mappedBy = "account_role")
-    private RoleAccount role;
-
-
 }

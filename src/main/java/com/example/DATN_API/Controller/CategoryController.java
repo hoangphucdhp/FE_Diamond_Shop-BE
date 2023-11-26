@@ -69,10 +69,8 @@ public class CategoryController {
         String type_categorysave = type_category.orElse("");
         Category categoryold = CategoryService.findByIdCategory(id);
         if (imagesave == null && type_categorysave.equals("")) {
-            String name = iStorageSerivce.storeFile(imagesave);
-            categoryold.setImage(name);
-            categoryold.setType_category(categoryold.getType_category());
             CategoryService.updateCategory(categoryold);
+
         } else if (imagesave == null && !type_categorysave.equals("")) {
             categoryold.setType_category(type_categorysave);
             CategoryService.updateCategory(categoryold);
@@ -81,6 +79,9 @@ public class CategoryController {
             categoryold.setImage(name);
             CategoryService.updateCategory(categoryold);
         } else {
+            String name = iStorageSerivce.storeFile(imagesave);
+            categoryold.setImage(name);
+            categoryold.setType_category(categoryold.getType_category());
             CategoryService.updateCategory(categoryold);
         }
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", categoryold), HttpStatus.OK);
