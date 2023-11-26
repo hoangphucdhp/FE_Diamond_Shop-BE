@@ -31,5 +31,7 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
     @Query( "SELECT acc FROM Account acc where acc.shop.shop_name like %?1%")
     Page<Account> getByShopName(Pageable pageable,String username);
 
-}
+    @Query("Select a FROM Account a where a.shop.id = ?1")
+    Account findAccountByIdShop(int id);
 
+}
