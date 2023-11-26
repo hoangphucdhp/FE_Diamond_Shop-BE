@@ -74,17 +74,18 @@ public class AccountController {
         @Autowired
         IStorageSerivce iStorageSerivce;
 
+    
         @GetMapping("/getAll")
         public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
-                        @RequestParam("sizePage") Optional<Integer> sizePage,
-                        @RequestParam("key") Optional<String> keyfind,
-                        @RequestParam("keyword") Optional<String> keyword, @RequestParam("sort") Optional<String> sort,
-                        @RequestParam("sortType") Optional<String> sortType) {
-                Page<Account> accounts = accountService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword);
-                return ResponseEntity.status(HttpStatus.OK).body(
-                                new ResponObject(
-                                                "SUCCESS", "GET ALL ACCOUNT", accounts));
-
+                                                   @RequestParam("sizePage") Optional<Integer> sizePage,
+                                                   @RequestParam("key") Optional<String> keyfind,
+                                                   @RequestParam("keyword") Optional<String> keyword, @RequestParam("sort") Optional<String> sort,
+                                                   @RequestParam("sortType") Optional<String> sortType,@RequestParam("shoporaccount") Optional<String> shoporaccount) {
+            Page<Account> accounts = accountService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword,shoporaccount);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponObject(
+                            "SUCCESS", "GET ALL ACCOUNT", accounts));
+    
         }
 
         @GetMapping("/{id}")
@@ -160,7 +161,7 @@ public class AccountController {
                                 session.setAttribute("emailRegister", email);
                                 MailInformation mail = new MailInformation();
                                 mail.setTo(email);
-                                mail.setSubject("MÃ XÁC NHẬN");
+                                mail.setSubject("ĐĂNG KÝ TÀI KHOẢN");
                                 mail.setBody("<html><body>" + "<p>Xin chào " + email + ",</p>"
                                                 + "<p>Chúng tôi nhận được yêu cầu đăng ký tài khoản FE Shop của bạn.</p>"
                                                 + "<p>Vui lòng không chia sẽ mã này cho bất cứ ai:" + "<h3>" + code
@@ -271,7 +272,7 @@ public class AccountController {
                                 }
                                 MailInformation mail = new MailInformation();
                                 mail.setTo(inAccount.getEmail());
-                                mail.setSubject("Quên mật khẩu");
+                                mail.setSubject("QUÊN MẬT KHẨU");
                                 mail.setBody("<html><body>" + "<p>Xin chào " + account.getUsername() + ",</p>"
                                                 + "<p>Chúng tôi nhận được yêu cầu thiết lập lại mật khẩu cho tài khoản FE Shop của bạn.</p>"
                                                 + "<p>Vui lòng không chia sẽ mã này cho bất cứ ai:" + "<h3>"
@@ -418,7 +419,7 @@ public class AccountController {
                                 address.setShopAddress(shop);
                                 addressService.createAddressShop(address);
                                 return new ResponseEntity<>(new ResponObject("success",
-                                                "Gửi yêu cầu thành công, vui lòng chờ ADMIN xét duyệt!", null),
+                                                "Gửi yêu cầu thành công, vui lòng chờ ADMIN xét duyệt!", shop),
                                                 HttpStatus.CREATED);
                         }
                 } catch (Exception e) {

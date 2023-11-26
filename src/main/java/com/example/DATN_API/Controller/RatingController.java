@@ -39,7 +39,6 @@ public class RatingController {
     public ResponseEntity<?> getRating(@PathVariable int productId) {
         try {
             Product product = productService.findById(productId);
-
             List<Rate> ratings = rateService.findByProduct_rate(product);
 
             // Kiểm tra xem có đánh giá nào không
@@ -51,7 +50,7 @@ public class RatingController {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("Lỗi xảy ra khi xử lý yêu cầu", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Lỗi xảy ra khi xử lý yêu cầu", HttpStatus.OK);
         }
     }
 

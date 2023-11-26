@@ -1,7 +1,13 @@
 package com.example.DATN_API.Controller;
+
 import com.example.DATN_API.Entity.Shop;
+import com.example.DATN_API.Entity.Account;
 import com.example.DATN_API.Entity.ResponObject;
+import com.example.DATN_API.Entity.Role;
+import com.example.DATN_API.Entity.RoleAccount;
 import com.example.DATN_API.Service.AccountService;
+import com.example.DATN_API.Service.InfoAccountService;
+import com.example.DATN_API.Service.RoleAccountService;
 import com.example.DATN_API.Service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,24 +25,27 @@ public class ShopController {
     ShopService shopService;
     @Autowired
     AccountService accountService;
+    @Autowired
+    RoleAccountService roleAccService;
+
     @GetMapping("/findAll")
-    public ResponseEntity<ResponObject> findAll(){
+    public ResponseEntity<ResponObject> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
-                "SUCCESS","find shop by product",accountService.findAll()
-        ));
+                "SUCCESS", "find shop by product", accountService.findAll()));
     }
+
     @GetMapping("/findByProduct/{id}")
-    public ResponseEntity<ResponObject> findByProduct(@PathVariable("id") int idProduct){
+    public ResponseEntity<ResponObject> findByProduct(@PathVariable("id") int idProduct) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
-                "SUCCESS","find shop by product",shopService.findShopByProduct(idProduct)
-        ));
+                "SUCCESS", "find shop by product", shopService.findShopByProduct(idProduct)));
     }
+
     @GetMapping("/get/{id}")
-    public ResponseEntity<ResponObject> findById(@PathVariable("id") int idShop){
+    public ResponseEntity<ResponObject> findById(@PathVariable("id") int idShop) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
-                "SUCCESS","find shop by product",shopService.findById(idShop)
-        ));
+                "SUCCESS", "find shop by product", shopService.findById(idShop)));
     }
+
     @GetMapping()
     public ResponseEntity<List<Shop>> getAll() {
 
@@ -52,33 +61,41 @@ public class ShopController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResponObject> create(@RequestParam("image") MultipartFile
-                                                           image, @RequestParam("shopName") String Shopname, @RequestParam("idAccount") Integer idAccount) {
+    public ResponseEntity<ResponObject> create(@RequestParam("image") MultipartFile image,
+            @RequestParam("shopName") String Shopname, @RequestParam("idAccount") Integer idAccount) {
 
-
-//        Shop shopnew = shopService.createShop(shop);
+        // Shop shopnew = shopService.createShop(shop);
         return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been added.", "shopnew"),
                 HttpStatus.CREATED);
     }
 
     @PutMapping("/admin/update/{id}/{status}")
-    public ResponseEntity<ResponObject> updatestatusAdmin(@PathVariable("id") Integer id,@PathVariable("status") Integer status) {
-        Shop shop=shopService.findById(id);
+    public ResponseEntity<ResponObject> updatestatusAdmin(@PathVariable("id") Integer id,
+            @PathVariable("status") Integer status) {
+        Shop shop = shopService.findById(id);
         shop.setStatus(status);
+        RoleAccount roleAcc = new RoleAccount();
+        Role role = new Role();
+        Account accountCheck = accountService.findAccountByIdShop(id);
+        role.setId(3);
+        roleAcc.setAccount(accountCheck);
+        roleAcc.setRole(role);
+        roleAccService.createRoleAcc(roleAcc);
         Shop shopnew = shopService.updateShop(shop);
         return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been updated.", shopnew), HttpStatus.OK);
     }
 
-//    @DeleteMapping("{id}")
-//    public ResponseEntity<ResponObject> delete(@PathVariable("id") Integer id) {
-//        if (!shopService.existsById(id))
-//            return new ResponseEntity<>(new ResponObject("NOT_FOUND", "shop_id: " + id + " does not exists.", id),
-//                    HttpStatus.NOT_FOUND);
-//        Shop shop = shopService.findById(id);
-//        shop.setStatus(2);
-//        shopService.updateshop(id, shop);
-//        return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been deleted.", id), HttpStatus.OK);
-//    }
+    // @DeleteMapping("{id}")
+    // public ResponseEntity<ResponObject> delete(@PathVariable("id") Integer id) {
+    // if (!shopService.existsById(id))
+    // return new ResponseEntity<>(new ResponObject("NOT_FOUND", "shop_id: " + id +
+    // " does not exists.", id),
+    // HttpStatus.NOT_FOUND);
+    // Shop shop = shopService.findById(id);
+    // shop.setStatus(2);
+    // shopService.updateshop(id, shop);
+    // return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been
+    // deleted.", id), HttpStatus.OK);
+    // }
 
 }
-

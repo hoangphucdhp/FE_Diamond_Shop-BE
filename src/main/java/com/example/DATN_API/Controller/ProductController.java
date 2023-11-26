@@ -1,7 +1,9 @@
 package com.example.DATN_API.Controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -200,6 +202,38 @@ public class ProductController {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBusiness(offSet, sizePage, sort,sortType, key, valueKeyword, idCategoryItem, idshop)),
                 HttpStatus.OK);
     }
+
+    @GetMapping("/{id}/shop")
+	public ResponseEntity<ResponObject> getShopByProduct(@PathVariable("id") Integer id) {
+		Map<Integer, Object[]> listProducts = new HashMap<>();
+		Shop shop = null;
+		Object[] dataReturn = null;
+		// CHECK ID PRODUCT .....
+		for (Shop s : shopService.findAll()) {
+			for (Product p : s.getProducts()) {
+				if (p.getId() == id) {
+					shop = s;
+					break;
+				}
+			}
+		}
+
+		// GET LIST PRODUCT AT SHOP NO LOOP
+		if (shop != null) {
+			for (Product p : shop.getProducts()) {
+				listProducts.put(p.getId(), new Object[] { p.getId(), p.getProduct_name(), p.getPrice(),
+						p.getCategoryItem_product(), p.getStatus(), p.getImage_product() });
+			}
+			dataReturn = new Object[] { shop.getId(), shop.getShop_name(), shop.getAddressShop(), listProducts,shop.getImage() };
+		}
+
+		if (listProducts.size() == 0) {
+			return new ResponseEntity<>(new ResponObject("error", "Không có thông tin", null), HttpStatus.NOT_FOUND);
+		} else {
+			return new ResponseEntity<>(new ResponObject("success", "GET LIST SUCCESS", dataReturn), HttpStatus.OK);
+		}
+
+	}
 
 
 }
