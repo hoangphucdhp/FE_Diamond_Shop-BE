@@ -27,7 +27,7 @@ public class ProductService {
     @Autowired
     CategoryService categoryService;
 
-    public Page<Product> findAll(Optional<Integer> offset, Optional<Integer> sp,
+    public Page<Product> findAllbyShop(Optional<Integer> offset, Optional<Integer> sp,
                                  Optional<String> field, Optional<Integer> idshop) {
         String sort = field.orElse("create_date");
         int itemStart = offset.orElse(0);

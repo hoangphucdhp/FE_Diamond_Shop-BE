@@ -47,7 +47,7 @@ public class ProductController {
     public ResponseEntity<Page<Product>> getAllbyShop(@RequestParam("offset") Optional<Integer> offSet,
                                                       @RequestParam("sizePage") Optional<Integer> sizePage,
                                                       @RequestParam("sort") Optional<String> sort, @RequestParam("shop") Optional<Integer> idshop) {
-        return new ResponseEntity<>(productService.findAll(offSet, sizePage, sort, idshop), HttpStatus.OK);
+        return new ResponseEntity<>(productService.findAllbyShop(offSet, sizePage, sort, idshop), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
