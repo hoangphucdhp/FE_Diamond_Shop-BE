@@ -47,13 +47,13 @@ public class CategoryService {
             direction = Sort.Direction.DESC;
         }
         Sort sort = Sort.by(direction, sortby);
-        if(keyfind.equals("id")){
-            return CategoryReponsitory.getAllById(PageRequest.of(itemStart, sizePage, sort),keywords);
+        if (keyfind.equals("id")) {
+            return CategoryReponsitory.getAllById(PageRequest.of(itemStart, sizePage, sort), keywords);
         } else if (keyfind.equals("type_category")) {
-            return CategoryReponsitory.getAllByType_category(PageRequest.of(itemStart, sizePage, sort),keywords);
-        }else if(keyfind.equals("")&& !keywords.equals("")){
-            return CategoryReponsitory.getAllById(PageRequest.of(itemStart, sizePage, sort),keywords);
-        }else{
+            return CategoryReponsitory.getAllByType_category(PageRequest.of(itemStart, sizePage, sort), keywords);
+        } else if (keyfind.equals("") && !keywords.equals("")) {
+            return CategoryReponsitory.getAllById(PageRequest.of(itemStart, sizePage, sort), keywords);
+        } else {
             return CategoryReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
         }
     }
@@ -61,6 +61,10 @@ public class CategoryService {
     public Category findByIdCategory(int id) {
         Optional<Category> category = CategoryReponsitory.findById(id);
         return category.get();
+    }
+
+    public Category findByTypeCategory(String id) {
+        return CategoryReponsitory.findByType_category(id) != null ? CategoryReponsitory.findByType_category(id) : null;
     }
 
     public Category createCategory(Category Category) {
@@ -106,7 +110,7 @@ public class CategoryService {
     public CategoryItem createCategoryItem(CategoryItem Category) {
         try {
             return CategoryItemReponsitory.save(Category);
-        }catch (Exception e){
+        } catch (Exception e) {
             LogError.saveToLog(e);
         }
         return null;
@@ -115,7 +119,7 @@ public class CategoryService {
     public CategoryItem updateCategoryItem(CategoryItem CategoryItem) {
         try {
             return CategoryItemReponsitory.save(CategoryItem);
-        }catch (Exception e){
+        } catch (Exception e) {
             LogError.saveToLog(e);
         }
         return null;
@@ -124,13 +128,13 @@ public class CategoryService {
     public Boolean deleteCategoryItem(int id) {
         try {
             CategoryItem categoryItem = findByIdCategoryItem(id);
-            if (categoryItem.getProducts().size()<1) {
+            if (categoryItem.getProducts().size() < 1) {
                 CategoryItemReponsitory.deleteById(id);
                 return true;
             } else {
                 return false;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LogError.saveToLog(e);
         }
         return false;
@@ -143,6 +147,10 @@ public class CategoryService {
     public Account findAccountById(int id) {
         Optional<Account> newaccount = accountReponsitory.findById(id);
         return newaccount.get();
+    }
+
+    public CategoryItem findByTypeCategoryItem(String id) {
+        return CategoryItemReponsitory.findByType_categoryItem(id) != null ? CategoryItemReponsitory.findByType_categoryItem(id) : null;
     }
 }
 

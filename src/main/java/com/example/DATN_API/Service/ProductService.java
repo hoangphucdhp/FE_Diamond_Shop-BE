@@ -28,14 +28,26 @@ public class ProductService {
     CategoryService categoryService;
 
     public Page<Product> findAllbyShop(Optional<Integer> offset, Optional<Integer> sp,
-                                 Optional<String> field, Optional<Integer> idshop) {
+                                       Optional<String> field, Optional<String> key, Optional<String> keyword, Optional<Integer> idshop) {
         String sort = field.orElse("create_date");
         int itemStart = offset.orElse(0);
         int sizePage = sp.orElse(20);
         int ishop = idshop.orElse(0);
+        String keysearch= key.orElse("");
+        String keywords= keyword.orElse("");
+
         if (ishop != 0) {
             Shop shop = shopService.findById(ishop);
-            return productRepository.findAllByShop(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), shop);
+            if (keysearch.equals("id")) {
+                return productRepository.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
+            } else if  (keysearch.equals("product_name")) {
+                return productRepository.getAllbyNameBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
+            } else if (keysearch.isEmpty() && !keywords.isEmpty()) {
+                return productRepository.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
+            } else {
+                return productRepository.findAllByShop(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), shop);
+            }
+
         }
         return null;
 

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shop")
@@ -43,7 +44,7 @@ public class ShopController {
     @GetMapping("/get/{id}")
     public ResponseEntity<ResponObject> findById(@PathVariable("id") int idShop) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
-                "SUCCESS", "find shop by product", shopService.findById(idShop)));
+                "SUCCESS", "find shop by id", shopService.findById(idShop)));
     }
 
     @GetMapping()
@@ -62,7 +63,7 @@ public class ShopController {
 
     @PostMapping()
     public ResponseEntity<ResponObject> create(@RequestParam("image") MultipartFile image,
-            @RequestParam("shopName") String Shopname, @RequestParam("idAccount") Integer idAccount) {
+                                               @RequestParam("shopName") String Shopname, @RequestParam("idAccount") Integer idAccount) {
 
         // Shop shopnew = shopService.createShop(shop);
         return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been added.", "shopnew"),
@@ -71,7 +72,7 @@ public class ShopController {
 
     @PutMapping("/admin/update/{id}/{status}")
     public ResponseEntity<ResponObject> updatestatusAdmin(@PathVariable("id") Integer id,
-            @PathVariable("status") Integer status) {
+                                                          @PathVariable("status") Integer status) {
         Shop shop = shopService.findById(id);
         shop.setStatus(status);
         RoleAccount roleAcc = new RoleAccount();
@@ -98,4 +99,15 @@ public class ShopController {
     // deleted.", id), HttpStatus.OK);
     // }
 
+    @PutMapping("/bussiness/updateInfShop/{id}")
+    public ResponseEntity<ResponObject> bussinessUpdateInf(@PathVariable("id") Integer id, @RequestParam("shop_name") String shop_name,
+                                                           @RequestParam("city") String city,
+                                                           @RequestParam("district") String district,
+                                                           @RequestParam("ward") String ward,
+                                                           @RequestParam("address") String address,
+                                                           @RequestParam("image") Optional<MultipartFile> image) {
+        Shop shop=shopService.bussinessUpdateInf(id,shop_name,city,district,ward,address,image);
+        return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", shop), HttpStatus.OK);
+
+    }
 }

@@ -16,4 +16,5 @@ public interface ShopReponsitory extends JpaRepository<Shop, Integer> {
 
     @Query(value = "SELECT * FROM shop where id_account = ?1", nativeQuery = true)
 	Shop findByID_Account(Integer id_account);
+
 }

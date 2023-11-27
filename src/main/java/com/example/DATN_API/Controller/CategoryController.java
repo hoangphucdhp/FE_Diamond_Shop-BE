@@ -33,7 +33,7 @@ public class CategoryController {
                                                  @RequestParam("sortType") Optional<String> sortType,
                                                  @RequestParam("key") Optional<String> keyfind,
                                                  @RequestParam("keyword") Optional<String> keyword) {
-        Page<Category> categories = CategoryService.findAll(offSet, sizePage, sort,sortType, keyfind, keyword);
+        Page<Category> categories = CategoryService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword);
         for (Category category : categories) {
             category.removeDuplicateCategoryItems();
         }
@@ -57,10 +57,15 @@ public class CategoryController {
         category.setStatus(true);
         category.setType_category(type_category);
         category.setCreate_date(create_date);
-        Category newcate = CategoryService.createCategory(category);
+        if (CategoryService.findByTypeCategory(type_category) == null) {
+            Category newcate = CategoryService.createCategory(category);
+            return new ResponseEntity<>(new ResponObject("success", "Thêm thành công!", newcate),
+                    HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(new ResponObject("error", "Tên loại sản phẩm đã tồn tại!", null),
+                    HttpStatus.CREATED);
+        }
 
-        return new ResponseEntity<>(new ResponObject("success", "Thêm thành công!", newcate),
-                HttpStatus.CREATED);
     }
 
     @PutMapping("{id}")
@@ -70,19 +75,28 @@ public class CategoryController {
         Category categoryold = CategoryService.findByIdCategory(id);
         if (imagesave == null && type_categorysave.equals("")) {
             CategoryService.updateCategory(categoryold);
-
-        } else if (imagesave == null && !type_categorysave.equals("")) {
-            categoryold.setType_category(type_categorysave);
-            CategoryService.updateCategory(categoryold);
+        } else if (imagesave == null && !type_categorysave.equals("") ) {
+            if (CategoryService.findByTypeCategory(type_categorysave) != null&& !type_categorysave.equals(categoryold.getType_category())) {
+                return new ResponseEntity<>(new ResponObject("error", "Tên loại sản phẩm đã tồn tại!", null),
+                        HttpStatus.OK);
+            } else {
+                categoryold.setType_category(type_categorysave);
+                CategoryService.updateCategory(categoryold);
+            }
         } else if (imagesave != null && type_categorysave.equals("")) {
             String name = iStorageSerivce.storeFile(imagesave);
             categoryold.setImage(name);
             CategoryService.updateCategory(categoryold);
         } else {
-            String name = iStorageSerivce.storeFile(imagesave);
-            categoryold.setImage(name);
-            categoryold.setType_category(categoryold.getType_category());
-            CategoryService.updateCategory(categoryold);
+            if (CategoryService.findByTypeCategory(type_categorysave) != null&&!type_categorysave.equals(categoryold.getType_category())) {
+                return new ResponseEntity<>(new ResponObject("error", "Tên loại sản phẩm đã tồn tại!", null),
+                        HttpStatus.OK);
+            } else {
+                String name = iStorageSerivce.storeFile(imagesave);
+                categoryold.setImage(name);
+                categoryold.setType_category(categoryold.getType_category());
+                CategoryService.updateCategory(categoryold);
+            }
         }
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", categoryold), HttpStatus.OK);
     }
@@ -120,9 +134,15 @@ public class CategoryController {
         newcategoryItem.setAccount(accountsave);
         newcategoryItem.setCreate_date(create_date);
         newcategoryItem.setStatus(true);
-        CategoryItem newItem = CategoryService.createCategoryItem(newcategoryItem);
-        return new ResponseEntity<>(new ResponObject("success", "Thêm thành công.", newItem),
-                HttpStatus.CREATED);
+        if (CategoryService.findByTypeCategoryItem(typeCategoryItem) == null) {
+            CategoryItem newItem = CategoryService.createCategoryItem(newcategoryItem);
+            return new ResponseEntity<>(new ResponObject("success", "Thêm thành công.", newItem),
+                    HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(new ResponObject("error", "Tên phân loại sản phẩm đã tồn tại!", null),
+                    HttpStatus.CREATED);
+        }
+
     }
 
     @PutMapping("/categoryItem/{id}")
@@ -136,10 +156,20 @@ public class CategoryController {
         if (typeCategoryItemsave.equals("") && idCategorysave != 0) {
             categoryItemold.setCategory(categorysave);
         } else if (!typeCategoryItemsave.equals("") && idCategorysave == 0) {
-            categoryItemold.setType_category_item(typeCategoryItemsave);
+            if (CategoryService.findByTypeCategoryItem(typeCategoryItemsave) != null&& !typeCategoryItemsave.equals(categoryItemold.getType_category_item())) {
+                return new ResponseEntity<>(new ResponObject("error", "Tên phân loại sản phẩm đã tồn tại!", null),
+                        HttpStatus.OK);
+            } else {
+                categoryItemold.setType_category_item(typeCategoryItemsave);
+            }
         } else if (!typeCategoryItemsave.equals("") && idCategorysave != 0) {
-            categoryItemold.setType_category_item(typeCategoryItemsave);
-            categoryItemold.setCategory(categorysave);
+            if (CategoryService.findByTypeCategoryItem(typeCategoryItemsave) != null&& !typeCategoryItemsave.equals(categoryItemold.getType_category_item())) {
+                return new ResponseEntity<>(new ResponObject("error", "Tên phân loại sản phẩm đã tồn tại!", null),
+                        HttpStatus.OK);
+            } else {
+                categoryItemold.setType_category_item(typeCategoryItemsave);
+                categoryItemold.setCategory(categorysave);
+            }
         }
         CategoryItem newcategoryItem = CategoryService.updateCategoryItem(categoryItemold);
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", newcategoryItem),

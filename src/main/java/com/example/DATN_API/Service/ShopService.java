@@ -5,17 +5,23 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.DATN_API.Entity.Account;
+import com.example.DATN_API.Entity.AddressShop;
 import com.example.DATN_API.Entity.Shop;
+import com.example.DATN_API.Reponsitories.AddressShopReponsitory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.DATN_API.Reponsitories.ShopReponsitory;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ShopService {
     @Autowired
     ShopReponsitory ShopReponsitory;
-
+    @Autowired
+    AddressShopReponsitory addressShopReponsitory;
+    @Autowired
+    IStorageSerivce iStorageSerivce;
     public List<Shop> findAll() {
         return ShopReponsitory.findAll();
     }
@@ -51,4 +57,21 @@ public class ShopService {
 		return ShopReponsitory.findByID_Account(id_account);
 	}
 
+    public Shop bussinessUpdateInf(int id, String shopName, String city, String district, String ward, String address,Optional<MultipartFile> image){
+        Shop shop=findById(id);
+        AddressShop addressShop= addressShopReponsitory.findByShop(shop);
+        //Set shop
+        shop.setShop_name(shopName);
+        if(image.isPresent()){
+            String name= iStorageSerivce.storeFile(image.get());
+            shop.setImage(name);
+        }
+        //Set address
+        addressShop.setCity(city);
+        addressShop.setDistrict(district);
+        addressShop.setWard(ward);
+        addressShop.setAddress(address);
+        addressShopReponsitory.save(addressShop);
+        return ShopReponsitory.save(shop);
+    }
 }
