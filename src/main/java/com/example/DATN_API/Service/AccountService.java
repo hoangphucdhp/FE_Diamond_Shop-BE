@@ -33,6 +33,10 @@ public class AccountService {
         return accountReponsitory.findAccountByIdShop(id);
     }
 
+    public Account findAccountByShopName(String id) {
+        return accountReponsitory.findAccountByShopName(id);
+    }
+
     public List<Account> findAll() {
         return accountReponsitory.findAll();
     }
@@ -94,7 +98,6 @@ public class AccountService {
     public Page<Account> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field) {
         String sort = field.orElse("create_date");
         int itemStart = offset.orElse(0);
-        ;
         int sizePage = sp.orElse(10);
         return accountReponsitory.getAll(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort));
     }

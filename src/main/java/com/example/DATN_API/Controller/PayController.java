@@ -22,18 +22,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.DATN_API.Pay.Config;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 @RestController
 @CrossOrigin("*")
 public class PayController {
 
     @GetMapping("/pay")
-    public String getPay(@RequestParam("price") long price,@RequestParam("typeBank") String typeBank) throws UnsupportedEncodingException{
+    public String getPay(@RequestParam("price") long price, @RequestParam("typeBank") String typeBank) throws UnsupportedEncodingException {
 
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
-        long amount = price*100;
+        long amount = price * 100;
         String bankCode = typeBank;
 
         String vnp_TxnRef = Config.getRandomNumber(8);
@@ -97,14 +98,16 @@ public class PayController {
         return paymentUrl;
     }
 
+
     @GetMapping("/payment")
-    public ResponseEntity<ResponObject> voi(@RequestParam("vnp_ResponseCode") String response){
-        if(response.equals("00")){
-            return new ResponseEntity<>(new ResponObject("OK", "Category has been added.", response),
-                    HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(new ResponObject("FAIL", "FAIL.", response),
-                    HttpStatus.OK);
+    public RedirectView voi(@RequestParam("vnp_ResponseCode") String response, RedirectAttributes attributes) {
+        if (response.equals("00")) {
+            // Trong trường hợp thanh toán thành công
+            String redirectUrl = "http://localhost:3000/pay?status=success";
+            return new RedirectView(redirectUrl);
+        } else {
+            String redirectUrl = "http://localhost:3000/pay?status=error";
+            return new RedirectView(redirectUrl);
         }
     }
 

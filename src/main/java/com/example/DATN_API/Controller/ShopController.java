@@ -1,12 +1,7 @@
 package com.example.DATN_API.Controller;
 
-import com.example.DATN_API.Entity.Shop;
-import com.example.DATN_API.Entity.Account;
-import com.example.DATN_API.Entity.ResponObject;
-import com.example.DATN_API.Entity.Role;
-import com.example.DATN_API.Entity.RoleAccount;
+import com.example.DATN_API.Entity.*;
 import com.example.DATN_API.Service.AccountService;
-import com.example.DATN_API.Service.InfoAccountService;
 import com.example.DATN_API.Service.RoleAccountService;
 import com.example.DATN_API.Service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +94,7 @@ public class ShopController {
     // deleted.", id), HttpStatus.OK);
     // }
 
+
     @PutMapping("/bussiness/updateInfShop/{id}")
     public ResponseEntity<ResponObject> bussinessUpdateInf(@PathVariable("id") Integer id, @RequestParam("shop_name") String shop_name,
                                                            @RequestParam("city") String city,
@@ -106,8 +102,12 @@ public class ShopController {
                                                            @RequestParam("ward") String ward,
                                                            @RequestParam("address") String address,
                                                            @RequestParam("image") Optional<MultipartFile> image) {
-        Shop shop=shopService.bussinessUpdateInf(id,shop_name,city,district,ward,address,image);
-        return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", shop), HttpStatus.OK);
-
+        try {
+            Shop shop = shopService.bussinessUpdateInf(id, shop_name, city, district, ward, address, image);
+            return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", shop), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            String errorMessage = e.getMessage();
+            return new ResponseEntity<>(new ResponObject("error", errorMessage, null), HttpStatus.BAD_REQUEST);
+        }
     }
 }

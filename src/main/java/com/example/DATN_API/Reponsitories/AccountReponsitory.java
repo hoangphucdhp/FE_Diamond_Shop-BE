@@ -34,4 +34,7 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
     @Query("Select a FROM Account a where a.shop.id = ?1")
     Account findAccountByIdShop(int id);
 
+    @Query("Select a FROM Account a where a.shop.shop_name = ?1")
+    Account findAccountByShopName(String id);
+
 }

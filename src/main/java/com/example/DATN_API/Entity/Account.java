@@ -1,8 +1,6 @@
 package com.example.DATN_API.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,30 +24,38 @@ public class Account {
     private boolean status;
 
 
-    @OneToMany(mappedBy = "accountCreateCategory")
+    @OneToMany(mappedBy = "accountCreateCategory",fetch = FetchType.LAZY)
     public List<Category> listCategory;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account",fetch = FetchType.LAZY)
     public List<CategoryItem> listCategoryItem;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account",fetch = FetchType.LAZY)
     public List<RoleAccount> listRole;
 
-    @OneToOne(mappedBy = "accountShop")
+    @OneToOne(mappedBy = "accountShop",fetch = FetchType.LAZY)
     private Shop shop;
 
-    @OneToOne(mappedBy = "Infaccount")
+    @OneToOne(mappedBy = "Infaccount",fetch = FetchType.LAZY)
     private InfoAccount infoAccount;
 
-    @OneToMany(mappedBy = "Addressaccount")
+    @OneToMany(mappedBy = "Addressaccount",fetch = FetchType.LAZY)
     private List<AddressAccount> address_account;
 
-    @OneToMany(mappedBy = "account_like")
+    @OneToMany(mappedBy = "account_like",fetch = FetchType.LAZY)
     private List<LikeProduct> likeProductes;
 
-    @OneToMany(mappedBy = "accountOrder")
+    @OneToMany(mappedBy = "accountOrder",fetch = FetchType.LAZY)
     private List<Order> orders;
 
-    @OneToMany(mappedBy = "account_check")
+    @OneToMany(mappedBy = "account_check",fetch = FetchType.LAZY)
     List<StatusOrder> statusOrders;
+
+    @OneToMany(mappedBy = "sender")
+    @JsonIgnore
+    private List<ChatMessage> senderMessage;
+
+    @OneToMany(mappedBy = "receiver")
+    @JsonIgnore
+    private List<ChatMessage> receiverMessage;
 }

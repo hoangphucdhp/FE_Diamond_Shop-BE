@@ -39,4 +39,5 @@ public class Shop {
 
     @OneToMany(mappedBy = "shopOrder")
     private List<Order> listOrder;
+
 }
