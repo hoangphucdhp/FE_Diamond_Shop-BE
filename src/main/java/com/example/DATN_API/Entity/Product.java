@@ -32,11 +32,7 @@ public class Product {
 
     private double price;
 
-    private double promotion_price;
-
     private Date create_date;
-    private Date start_promotion;
-    private Date end_promotion;
     private String description;
     private int status;
 
