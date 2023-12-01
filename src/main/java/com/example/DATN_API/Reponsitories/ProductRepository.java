@@ -13,28 +13,22 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
 	@Query("select p from Product p where p.shop=?1")
 	Page<Product> findAllByShop(Pageable pageable,Shop shop);
-
+	@Query("select p from Product p where p.shop=?1 and p.status=1")
+	Page<Product> findAllByShopStatus(Pageable pageable,Shop shop);
+	@Query("SELECT p FROM Product p JOIN p.listStorage s WHERE p.shop = ?1 GROUP BY p HAVING SUM(s.quantity) = 0")
+	Page<Product> findAllByShopAndTotalQuantityZero(Pageable pageable, Shop shop);
 	@Query("select p from Product p where p.status=?1 and p.shop=?2")
 	Page<Product> getProductbyStatus(Pageable pageable,int status, Shop shop);
 
 	@Query("select p from Product p where p.status=?1")
 	Page<Product> getPageProduct(int status, Pageable pageable);
-
-//	@Query("SELECT p FROM Product p WHERE p.product_name LIKE %?1%"
-//			+ " AND CAST(p.categoryItem_product.id AS STRING) LIKE %?2%" + " AND CAST(p.status AS STRING) LIKE %?3%"
-//			+ " AND p.shop =?4")
-//	Page<Product> findByProductName(Pageable pageable,String keyword, String idCategoryItem, String status, Shop shop);
-//
-//	@Query("SELECT p FROM Product p WHERE CAST(p.id AS STRING) LIKE %?1%"
-//			+ " AND CAST(p.categoryItem_product.id AS STRING) LIKE %?2%" + " AND CAST(p.status AS STRING) LIKE %?3%"
-//			+ " AND p.shop =?4")
-//	Page<Product> findByKey(Pageable pageable,String keyword, String idCategoryItem, String status, Shop shop);
 
 	@Query(value = "SELECT TOP 10 " +
 			"p.id AS idProduct, " +
@@ -82,5 +76,33 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
 	@Query("select pro from Product pro where pro.product_name like %?1% and pro.shop=?2")
 	Page<Product> getAllbyNameBussiness(Pageable pageable, String name, Shop shop);
+//GetAll check Status
+	@Query("select pro from Product pro where CAST(pro.id AS String) like %?1% and pro.categoryItem_product=?2 and pro.shop=?3 and CAST(pro.status AS String) = '1'")
+	Page<Product> searchProductByIdAndCategoryStatus(Pageable pageable, String id, CategoryItem categoryItem,Shop shop);
+
+	@Query("select pro from Product pro where pro.product_name like %?1% and pro.categoryItem_product=?2 and pro.shop=?3and CAST(pro.status AS String) = '1'")
+	Page<Product> searchProductByNameAndCategoryStatus(String name, CategoryItem categoryItem,Shop shop,Pageable pageable);
+
+	@Query("select pro from Product pro where pro.categoryItem_product.id=?1 and pro.shop=?2 and CAST(pro.status AS String) = '1'")
+	Page<Product> searchProductByCategoryStatus(Pageable pageable, int categoryItem, Shop shop);
+
+	@Query("select pro from Product pro  where pro.id = ?1 and pro.shop.id=?2 and CAST(pro.status AS String) = '1'")
+	Page<Product> getAllbyIdBussinessStatus(Pageable pageable, String name, Optional<Integer> shop);
+
+	@Query("select pro from Product pro where pro.product_name like %?1% and pro.shop=?2 and CAST(pro.status AS String) = '1'")
+	Page<Product> getAllbyNameBussinessStatus(Pageable pageable, String name, Shop shop);
+	//end
+
+	//getAllbussiness check quantity
+	@Query("SELECT pro FROM Product pro JOIN pro.listStorage s WHERE CAST(pro.id AS String) LIKE %?1% AND pro.categoryItem_product = ?2 AND pro.shop = ?3 GROUP BY pro HAVING SUM(s.quantity) = 0")
+	Page<Product> searchProductByIdAndCategoryAndZeroQuantity(String id, CategoryItem categoryItem, Shop shop, Pageable pageable);
+	@Query("SELECT pro FROM Product pro JOIN pro.listStorage s WHERE pro.product_name LIKE %?1% AND pro.categoryItem_product = ?2 AND pro.shop = ?3 GROUP BY pro HAVING SUM(s.quantity) = 0")
+	Page<Product> searchProductByNameAndCategoryAndZeroQuantity(String name, CategoryItem categoryItem, Shop shop, Pageable pageable);
+	@Query("SELECT pro FROM Product pro JOIN pro.listStorage s WHERE pro.categoryItem_product.id = ?1 AND pro.shop = ?2 GROUP BY pro HAVING SUM(s.quantity) = 0")
+	Page<Product> searchProductByCategoryAndZeroQuantity(int categoryItem, Shop shop, Pageable pageable);
+	@Query("SELECT pro FROM Product pro JOIN pro.listStorage s WHERE CAST(pro.id AS String) LIKE %?1% AND pro.shop = ?2 GROUP BY pro HAVING SUM(s.quantity) = 0")
+	Page<Product> getAllByIdBussinessAndZeroQuantity(String id, Shop shop, Pageable pageable);
+	@Query("SELECT pro FROM Product pro JOIN pro.listStorage s WHERE pro.product_name LIKE %?1% AND pro.shop = ?2 GROUP BY pro HAVING SUM(s.quantity) = 0")
+	Page<Product> getAllByNameAndZeroQuantity(Pageable pageable, String name, Shop shop);
 
 }

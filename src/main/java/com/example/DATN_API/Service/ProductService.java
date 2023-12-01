@@ -33,14 +33,14 @@ public class ProductService {
         int itemStart = offset.orElse(0);
         int sizePage = sp.orElse(20);
         int ishop = idshop.orElse(0);
-        String keysearch= key.orElse("");
-        String keywords= keyword.orElse("");
+        String keysearch = key.orElse("");
+        String keywords = keyword.orElse("");
 
         if (ishop != 0) {
             Shop shop = shopService.findById(ishop);
             if (keysearch.equals("id")) {
                 return productRepository.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
-            } else if  (keysearch.equals("product_name")) {
+            } else if (keysearch.equals("product_name")) {
                 return productRepository.getAllbyNameBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
             } else if (keysearch.isEmpty() && !keywords.isEmpty()) {
                 return productRepository.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort), keywords, shop);
@@ -226,7 +226,8 @@ public class ProductService {
             Optional<String> key,
             Optional<String> valueKeyword,
             Optional<Integer> cate,
-            Optional<Integer> ishop
+            Optional<Integer> ishop,
+            Optional<String> isActive
     ) {
         String sortby = field.orElse("product_name");
         int itemStart = offset.orElse(0);
@@ -260,22 +261,61 @@ public class ProductService {
         Sort sort = Sort.by(direction, sortby);
 
         try {
-            if (keyfind.equals("id") && idCategoryItem == 0) {
-                return productRepository.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, sort), keywords, shop);
-            } else if (keyfind.equals("product_name") && idCategoryItem == 0) {
-                return productRepository.getAllbyNameBussiness(PageRequest.of(itemStart, sizePage, sort), keywords, shop);
-            } else if (keyfind.equals("") && idCategoryItem != 0) {
-                return productRepository.searchProductByCategory(PageRequest.of(itemStart, sizePage, sort), idCategoryItem, shop);
-            } else if (keyfind.equals("id") && idCategoryItem != 0) {
-                CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
-                return productRepository.searchProductByIdAndCategory(PageRequest.of(itemStart, sizePage, sort), keywords, categoryItem, shop);
-            } else if (keyfind.equals("product_name") && idCategoryItem != 0) {
-                CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
-                return productRepository.searchProductByNameAndCategory(keywords, categoryItem, shop, PageRequest.of(itemStart, sizePage, sort));
-            } else if (keyfind.equals("") && idCategoryItem == 0 && !keywords.isEmpty()) {
-                return productRepository.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, sort), keywords, shop);
+            if (isActive.isPresent() && isActive.get().equals("active")) {
+                if (keyfind.equals("id") && idCategoryItem == 0) {
+                    return productRepository.getAllbyIdBussinessStatus(PageRequest.of(itemStart, sizePage, sort), keywords, ishop);
+                } else if (keyfind.equals("product_name") && idCategoryItem == 0) {
+                    return productRepository.getAllbyNameBussinessStatus(PageRequest.of(itemStart, sizePage, sort), keywords, shop);
+                } else if (keyfind.equals("") && idCategoryItem != 0) {
+                    return productRepository.searchProductByCategoryStatus(PageRequest.of(itemStart, sizePage, sort), idCategoryItem, shop);
+                } else if (keyfind.equals("id") && idCategoryItem != 0) {
+                    CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
+                    return productRepository.searchProductByIdAndCategoryStatus(PageRequest.of(itemStart, sizePage, sort), keywords, categoryItem, shop);
+                } else if (keyfind.equals("product_name") && idCategoryItem != 0) {
+                    CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
+                    return productRepository.searchProductByNameAndCategoryStatus(keywords, categoryItem, shop, PageRequest.of(itemStart, sizePage, sort));
+                } else if (keyfind.equals("") && idCategoryItem == 0 && !keywords.isEmpty()){
+                    return productRepository.getAllbyIdBussinessStatus(PageRequest.of(itemStart, sizePage, sort), keywords, ishop);
+                } else {
+                    return productRepository.findAllByShopStatus(PageRequest.of(itemStart, sizePage, sort), shop);
+                }
+            }
+            else if (isActive.isPresent() && isActive.get().equals("unactive")) {
+                if (keyfind.equals("id") && idCategoryItem == 0) {
+                    return productRepository.getAllByIdBussinessAndZeroQuantity( keywords, shop,PageRequest.of(itemStart, sizePage, sort));
+                } else if (keyfind.equals("product_name") && idCategoryItem == 0) {
+                    return productRepository.getAllByNameAndZeroQuantity(PageRequest.of(itemStart, sizePage, sort), keywords, shop);
+                } else if (keyfind.equals("") && idCategoryItem != 0) {
+                    return productRepository.searchProductByCategoryAndZeroQuantity(idCategoryItem,shop,PageRequest.of(itemStart, sizePage, sort));
+                } else if (keyfind.equals("id") && idCategoryItem != 0) {
+                    CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
+                    return productRepository.searchProductByIdAndCategoryAndZeroQuantity(keywords, categoryItem, shop,PageRequest.of(itemStart, sizePage, sort));
+                } else if (keyfind.equals("product_name") && idCategoryItem != 0) {
+                    CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
+                    return productRepository.searchProductByNameAndCategoryAndZeroQuantity(keywords, categoryItem, shop, PageRequest.of(itemStart, sizePage, sort));
+                } else if (keyfind.equals("") && idCategoryItem == 0 && !keywords.isEmpty()) {
+                    return productRepository.getAllByIdBussinessAndZeroQuantity(keywords, shop,PageRequest.of(itemStart, sizePage, sort));
+                } else {
+                    return productRepository.findAllByShopAndTotalQuantityZero(PageRequest.of(itemStart, sizePage, sort), shop);
+                }
             } else {
-                return productRepository.findAllByShop(PageRequest.of(itemStart, sizePage, sort), shop);
+                if (keyfind.equals("id") && idCategoryItem == 0) {
+                    return productRepository.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, sort), keywords, shop);
+                } else if (keyfind.equals("product_name") && idCategoryItem == 0) {
+                    return productRepository.getAllbyNameBussiness(PageRequest.of(itemStart, sizePage, sort), keywords, shop);
+                } else if (keyfind.equals("") && idCategoryItem != 0) {
+                    return productRepository.searchProductByCategory(PageRequest.of(itemStart, sizePage, sort), idCategoryItem, shop);
+                } else if (keyfind.equals("id") && idCategoryItem != 0) {
+                    CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
+                    return productRepository.searchProductByIdAndCategory(PageRequest.of(itemStart, sizePage, sort), keywords, categoryItem, shop);
+                } else if (keyfind.equals("product_name") && idCategoryItem != 0) {
+                    CategoryItem categoryItem = categoryService.findByIdCategoryItem(idCategoryItem);
+                    return productRepository.searchProductByNameAndCategory(keywords, categoryItem, shop, PageRequest.of(itemStart, sizePage, sort));
+                } else if (keyfind.equals("") && idCategoryItem == 0 && !keywords.isEmpty()) {
+                    return productRepository.getAllbyIdBussiness(PageRequest.of(itemStart, sizePage, sort), keywords, shop);
+                } else {
+                    return productRepository.findAllByShop(PageRequest.of(itemStart, sizePage, sort), shop);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

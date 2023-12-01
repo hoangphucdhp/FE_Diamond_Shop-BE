@@ -205,8 +205,8 @@ public class ProductController {
     public ResponseEntity<ResponObject> search(@RequestParam("key") Optional<String> key, @RequestParam("keyword") Optional<String> valueKeyword,
                                                @RequestParam("category") Optional<Integer> idCategoryItem, @RequestParam("shop") Optional<Integer> idshop, @RequestParam("offset") Optional<Integer> offSet,
                                                @RequestParam("sizePage") Optional<Integer> sizePage,
-                                               @RequestParam("sort") Optional<String> sort, @RequestParam("sortType") Optional<String> sortType) {
-        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBusiness(offSet, sizePage, sort, sortType, key, valueKeyword, idCategoryItem, idshop)),
+                                               @RequestParam("sort") Optional<String> sort, @RequestParam("sortType") Optional<String> sortType, @RequestParam("isActive") Optional<String> isCheck) {
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBusiness(offSet, sizePage, sort, sortType, key, valueKeyword, idCategoryItem, idshop,isCheck)),
                 HttpStatus.OK);
     }
 
