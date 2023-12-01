@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface AccountReponsitory extends JpaRepository<Account, Integer> {
 
@@ -19,14 +21,11 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
     @Query("select acc from Account acc")
     Page<Account> getAll(Pageable pageable);
 
-    @Query("select acc from Account acc where acc.username like %?1%")
+    @Query("select acc from Account acc where acc.us like %?1%")
     Page<Account> getAllfindbyUsername(Pageable pageable,String username);
 
     @Query("select acc from Account acc  where acc.infoAccount.fullname like %?1%")
     Page<Account> getAllfindbyFullname(Pageable pageable,String fullname);
-
-    @Query(value = "SELECT * FROM account where username=?1", nativeQuery = true)
-	Account findByUsername(String username);
 
     @Query( "SELECT acc FROM Account acc where acc.shop.shop_name like %?1%")
     Page<Account> getByShopName(Pageable pageable,String username);
@@ -37,4 +36,7 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
     @Query("Select a FROM Account a where a.shop.shop_name = ?1")
     Account findAccountByShopName(String id);
 
+    @Query("select acc from Account acc where acc.us = ?1")
+    Optional<Account> findByUsername(String username);
 }
+

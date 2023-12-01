@@ -46,10 +46,10 @@ public class ProductController {
         ));
     }
 
-    @GetMapping()
-    public ResponseEntity<List<Product>> getAll() {
-        return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
-    }
+//    @GetMapping()
+//    public ResponseEntity<List<Product>> getAll() {
+//        return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
+//    }
 
     @GetMapping("/getByShop")
     public ResponseEntity<Page<Product>> getAllbyShop(@RequestParam("offset") Optional<Integer> offSet,
@@ -129,16 +129,7 @@ public class ProductController {
                 HttpStatus.CREATED);
     }
 
-    @PutMapping("/verify/{id}")
-    public ResponseEntity<ResponObject> verifyProduct(@PathVariable("id") Integer id) {
-        Product product = productService.findById(id);
-        product.setStatus(1);
-        productService.createProduct(product);
-        return new ResponseEntity<>(new ResponObject("SUCCESS", "verify product succsess", product),
-                HttpStatus.CREATED);
-    }
 
-    @PutMapping("/ban/{id}")
     public ResponseEntity<ResponObject> banProduct(@PathVariable("id") Integer id) {
         Product product = productService.findById(id);
         product.setStatus(2);
@@ -146,6 +137,7 @@ public class ProductController {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "ban product succsess", product),
                 HttpStatus.CREATED);
     }
+
 
     @GetMapping("/top10")
     public ResponseEntity<List<Object[]>> getTop10Products() {
@@ -323,3 +315,4 @@ public class ProductController {
     }
 
 }
+

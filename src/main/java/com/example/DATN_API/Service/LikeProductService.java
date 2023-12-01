@@ -1,5 +1,4 @@
 package com.example.DATN_API.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +13,7 @@ public class LikeProductService {
 	@Autowired
 	LikeProductReponsitory LikeProductReponsitory;
 
+
 	public LikeProduct save(LikeProduct likeProduct) {
 		return LikeProductReponsitory.save(likeProduct);
 	}
@@ -21,6 +21,7 @@ public class LikeProductService {
 	public void delete(LikeProduct likeProduct) {
 		LikeProductReponsitory.delete(likeProduct);
 	}
+
 
 	public List<LikeProduct> findAll() {
 		return LikeProductReponsitory.findAll();
@@ -31,6 +32,7 @@ public class LikeProductService {
 		return LikeProduct.get();
 	}
 
+
 	public void createLikeProduct(LikeProduct LikeProduct) {
 		LikeProductReponsitory.save(LikeProduct);
 	}
@@ -39,7 +41,6 @@ public class LikeProductService {
 		LikeProduct.setId(id);
 		LikeProductReponsitory.save(LikeProduct);
 	}
-
 	public void deleteLikeProduct(int id) {
 		LikeProductReponsitory.deleteById(id);
 	}
@@ -47,7 +48,6 @@ public class LikeProductService {
 	public Boolean existsById(Integer id) {
 		return LikeProductReponsitory.existsById(id) ? true : false;
 	}
-
 	public LikeProduct findByProductLikeIdAndAccountLikeId(int idProduct, int idAccount) {
 		return LikeProductReponsitory.findByProductLikeIdAndAccountLikeId(idProduct, idAccount);
 	}
@@ -55,4 +55,5 @@ public class LikeProductService {
 	public String findProductDetailsByAccountId(int idAccount){
 		return LikeProductReponsitory.findProductDetailsByAccountId(idAccount);
 	}
+
 }

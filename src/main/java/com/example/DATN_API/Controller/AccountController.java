@@ -1,23 +1,18 @@
 package com.example.DATN_API.Controller;
 
 import com.example.DATN_API.Entity.*;
-import com.example.DATN_API.Reponsitories.AccountReponsitory;
-import com.example.DATN_API.Service.AccountService;
-import com.example.DATN_API.Service.AddressAccountService;
-import com.example.DATN_API.Service.AddressShopService;
-import com.example.DATN_API.Service.CategoryService;
-import com.example.DATN_API.Service.IStorageSerivce;
-import com.example.DATN_API.Service.InfoAccountService;
-import com.example.DATN_API.Service.MailServiceImplement;
-import com.example.DATN_API.Service.RoleAccountService;
-import com.example.DATN_API.Service.ShopService;
 
+
+import com.example.DATN_API.Service.*;
+//import com.example.DATN_API.Service.AuthService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -35,7 +30,7 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 @RestController
-@RequestMapping("/api/account/")
+@RequestMapping("/api/account")
 @CrossOrigin
 public class AccountController {
 
@@ -73,7 +68,19 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject("SUCCESS", "GET ALL ACCOUNT", accounts));
 
     }
+//    private final AuthenticationService authenticationService;
 
+//    @GetMapping("/account/getAll1")
+//    public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
+//                                               @RequestParam("sizePage") Optional<Integer> sizePage,
+//                                               @RequestParam("sort") Optional<String> sort) {
+//        Page<Account> accounts = accountService.findAll(offSet, sizePage, sort);
+//        return ResponseEntity.status(HttpStatus.OK).body(
+//                new ResponObject(
+//                        "SUCCESS", "GET ALL ACCOUNT", accounts
+//                )
+//        );
+//    }
     @GetMapping("/{id}")
     public ResponseEntity<ResponObject> getAccountById(@PathVariable("id") Integer id) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject("SUCCESS", "get by id successfully", accountService.findById(id)));
@@ -150,7 +157,7 @@ public class AccountController {
     public ResponseEntity<ResponObject> rePassword(@PathVariable("email") String email, @PathVariable("newpassword") String newpassword) {
         try {
             Account account = accountService.findByEmail(email);
-            account.setPassword(newpassword);
+            account.setPw(newpassword);
             accountService.createAccount(account);
             return new ResponseEntity<>(new ResponObject("success", "Đặt lại mật khẩu thành công!", null), HttpStatus.OK);
         } catch (Exception e) {
@@ -186,7 +193,7 @@ public class AccountController {
                 // Create role
                 Account accountCheck = accountService.findByUsername(account.getUsername());
                 role.setId(1);
-                roleAcc.setAccount(accountCheck);
+                roleAcc.setAccount_role(accountCheck);
                 roleAcc.setRole(role);
                 roleAccService.createRoleAcc(roleAcc);
                 // Default info
@@ -292,7 +299,7 @@ public class AccountController {
             } else if (!newPassword.equals(reNewPassword)) {
                 return new ResponseEntity<>(new ResponObject("error", "Mật khẩu mới không khớp!", null), HttpStatus.OK);
             } else {
-                account.setPassword(newPassword);
+                account.setPw(newPassword);
                 accountService.changePass(account);
                 return new ResponseEntity<>(new ResponObject("success", "Đổi mật khẩu thành công!", account), HttpStatus.OK);
 
@@ -460,6 +467,122 @@ public class AccountController {
         Account account=accountService.findAccountByShopName(id);
         return new ResponseEntity<>(new ResponObject("success", "Tìm thành công.", account), HttpStatus.OK);
     }
+
+//=======
+//import org.springframework.security.access.prepost.PreAuthorize;
+//import org.springframework.web.bind.annotation.*;
+//
+//import java.util.Optional;
+
+//@RestController
+//@RequestMapping("/api")
+//@CrossOrigin
+//@RequiredArgsConstructor
+//public class AccountController {
+//
+//    private final AuthenticationService authenticationService;
+//    @Autowired
+//    AccountService accountService;
+//    @Autowired
+//    AddressAccountService addressAccountService;
+//
+//
+//    @GetMapping("/account/getAll1")
+//    public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
+//                                               @RequestParam("sizePage") Optional<Integer> sizePage,
+//                                               @RequestParam("sort") Optional<String> sort) {
+//        Page<Account> accounts = accountService.findAll(offSet, sizePage, sort);
+//        return ResponseEntity.status(HttpStatus.OK).body(
+//                new ResponObject(
+//                        "SUCCESS", "GET ALL ACCOUNT", accounts
+//                )
+//        );
+//    }
+//
+//
+//    @GetMapping("/account/{id}")
+//    public ResponseEntity<ResponObject> getAccountById(@PathVariable("id") Integer id) {
+//        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+//                "SUCCESS", "get by id successfully", accountService.findAccountById(id)
+//        ));
+//    }
+//    @GetMapping("/account/{id}/address")
+//    public ResponseEntity<ResponObject> getAddressDefault(@PathVariable("id") int id) {
+//        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+//                "SUCCESS", "get address default by id successfully", addressAccountService.getAddressDefault(id)
+//        ));
+//    }
+//    @PostMapping("/auth/register")
+//    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
+//        return ResponseEntity.ok(authenticationService.register(request));
+//    }
+//    @PostMapping("/auth/login")
+//    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRqeuest request) {
+//        return ResponseEntity.ok(authenticationService.authenticate(request));
+//    }
+
+//    @PostMapping("/auth/login")
+//    public LoginRespon login(@RequestBody @Validated LoginRequest request) {
+//        return authService.attemLogin(request.getEmail(), request.getPassword());
+//    }
+//
+//    @GetMapping("/secured")
+//    public String secured(@AuthenticationPrincipal LoginRequest userPrincipal) {
+//        return "Login success! " + userPrincipal.getEmail() + " Password : " + userPrincipal.getPassword();
+//    }
+//
+//    @GetMapping("/admin")
+//    public String admin(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+//        System.out.println(userPrincipal.getUsername());
+//        return "you are a admin! ";
+//    }
+//    @GetMapping("/get_account_detail/{username}")
+//    public ResponseEntity<ResponObject> getDetailAccount(@PathVariable("username") String username){
+//        Optional<Account> account = accountReponsitory.findById(username);
+//        if(account.isEmpty()){
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponObject(
+//                            "0","Không tìm thấy thông tài khoản: "+username,""
+//                    )
+//            );
+//        }else {
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponObject(
+//                            "1"," thông tài khoản: "+username,account.get()
+//                    )
+//            );
+//        }
+//
+//    }
+
+//    @PostMapping("create")
+//    public ResponseEntity<ResponObject> create(@RequestBody Account account){
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:MM:ss");
+//        account.setCreate_date(new Date());
+//        Account accountSave = accountReponsitory.save(account);
+//
+//    return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+//
+//    ));
+//    }
+//    @PutMapping ("update/{username}")
+//    public ResponseEntity<ResponObject> update(@PathVariable("username") String username,@RequestBody Account account){
+//        account.setUsername(username);
+//        Account accountSave = accountReponsitory.save(account);
+//        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+//            "1","update account successfully",accountSave
+//        ));
+//    }
+//    @PutMapping("delete/{username}")
+//    public ResponseEntity<ResponObject> delete(@PathVariable("username") String username){
+//        Optional<Account> acc = accountReponsitory.findById(username);
+//        Account account = acc.get();
+//        account.setStatus(false);
+//        Account accountSave = accountReponsitory.save(account);
+//        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+//                "1","delete account successfully",accountSave
+//        ));
+//    }
 
 
 }

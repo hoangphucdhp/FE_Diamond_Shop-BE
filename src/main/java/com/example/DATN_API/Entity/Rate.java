@@ -3,6 +3,7 @@ package com.example.DATN_API.Entity;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,7 +32,9 @@ public class Rate {
     @ManyToOne
     @JoinColumn(name = "create_by")
     private Account account_rate;
+
     
   @Column(name = "create_date")
     private LocalDateTime createDate;
+
 }

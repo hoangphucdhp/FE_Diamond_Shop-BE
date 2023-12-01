@@ -1,7 +1,6 @@
 package com.example.DATN_API.Entity;
-
-
 import java.time.LocalDateTime;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -28,7 +27,6 @@ public class LikeProduct {
     @JoinColumn(name = "id_account")
     @JsonIgnore
     private Account account_like;
-
     
     @Column(name = "create_date")
     private LocalDateTime createDate; // Thêm trường createDate và setter
@@ -46,4 +44,3 @@ public class LikeProduct {
         this.account_like = account;
     }
 }
-

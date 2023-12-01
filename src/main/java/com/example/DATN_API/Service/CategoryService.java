@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+
 import org.springframework.stereotype.Service;
 
 import com.example.DATN_API.Reponsitories.CategoryItemReponsitory;
@@ -24,6 +25,7 @@ public class CategoryService {
     CategoryItemReponsitory CategoryItemReponsitory;
     @Autowired
     AccountReponsitory accountReponsitory;
+
 
     public Page<Category> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> sortType, Optional<String> key, Optional<String> keyword) {
         String sortby = field.orElse("type_category");
@@ -56,12 +58,14 @@ public class CategoryService {
         } else {
             return CategoryReponsitory.getAll(PageRequest.of(itemStart, sizePage, sort));
         }
+
     }
 
     public Category findByIdCategory(int id) {
         Optional<Category> category = CategoryReponsitory.findById(id);
         return category.get();
     }
+
 
     public Category findByTypeCategory(String id) {
         return CategoryReponsitory.findByType_category(id) != null ? CategoryReponsitory.findByType_category(id) : null;
@@ -76,6 +80,7 @@ public class CategoryService {
     }
 
     public Boolean deleteCategory(int id) {
+
         try {
             Category category = findByIdCategory(id);
             if (category.getListCategory().size() < 1) {
@@ -111,6 +116,7 @@ public class CategoryService {
         try {
             return CategoryItemReponsitory.save(Category);
         } catch (Exception e) {
+
             LogError.saveToLog(e);
         }
         return null;
@@ -120,6 +126,7 @@ public class CategoryService {
         try {
             return CategoryItemReponsitory.save(CategoryItem);
         } catch (Exception e) {
+
             LogError.saveToLog(e);
         }
         return null;
@@ -129,12 +136,14 @@ public class CategoryService {
         try {
             CategoryItem categoryItem = findByIdCategoryItem(id);
             if (categoryItem.getProducts().size() < 1) {
+
                 CategoryItemReponsitory.deleteById(id);
                 return true;
             } else {
                 return false;
             }
         } catch (Exception e) {
+
             LogError.saveToLog(e);
         }
         return false;
@@ -153,4 +162,5 @@ public class CategoryService {
         return CategoryItemReponsitory.findByType_categoryItem(id) != null ? CategoryItemReponsitory.findByType_categoryItem(id) : null;
     }
 }
+
 

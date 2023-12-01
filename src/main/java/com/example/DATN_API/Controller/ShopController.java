@@ -1,20 +1,29 @@
 package com.example.DATN_API.Controller;
 
+
 import com.example.DATN_API.Entity.*;
 import com.example.DATN_API.Service.AccountService;
+import com.example.DATN_API.Service.OrderService;
 import com.example.DATN_API.Service.RoleAccountService;
 import com.example.DATN_API.Service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/shop")
+
+@RequestMapping("/api")
+
 @CrossOrigin("*")
 public class ShopController {
     @Autowired
@@ -43,12 +52,14 @@ public class ShopController {
     }
 
     @GetMapping()
+
     public ResponseEntity<List<Shop>> getAll() {
 
         return new ResponseEntity<>(shopService.findAll(), HttpStatus.OK);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/shop/{id}")
+
     public ResponseEntity<Shop> findById(@PathVariable Integer id) {
         if (shopService.existsById(id)) {
             return new ResponseEntity<>(shopService.findById(id), HttpStatus.OK);
@@ -56,14 +67,14 @@ public class ShopController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping()
-    public ResponseEntity<ResponObject> create(@RequestParam("image") MultipartFile image,
-                                               @RequestParam("shopName") String Shopname, @RequestParam("idAccount") Integer idAccount) {
-
-        // Shop shopnew = shopService.createShop(shop);
+    @PostMapping("/shop")
+    public ResponseEntity<ResponObject> create(@RequestParam("image") MultipartFile
+                                                       image, @RequestParam("shopName") String Shopname, @RequestParam("idAccount") Integer idAccount) {
+//        Shop shopnew = shopService.createShop(shop);
         return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been added.", "shopnew"),
                 HttpStatus.CREATED);
     }
+
 
     @PutMapping("/admin/update/{id}/{status}")
     public ResponseEntity<ResponObject> updatestatusAdmin(@PathVariable("id") Integer id,
@@ -74,25 +85,12 @@ public class ShopController {
         Role role = new Role();
         Account accountCheck = accountService.findAccountByIdShop(id);
         role.setId(3);
-        roleAcc.setAccount(accountCheck);
+        roleAcc.setAccount_role(accountCheck);
         roleAcc.setRole(role);
         roleAccService.createRoleAcc(roleAcc);
         Shop shopnew = shopService.updateShop(shop);
         return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been updated.", shopnew), HttpStatus.OK);
     }
-
-    // @DeleteMapping("{id}")
-    // public ResponseEntity<ResponObject> delete(@PathVariable("id") Integer id) {
-    // if (!shopService.existsById(id))
-    // return new ResponseEntity<>(new ResponObject("NOT_FOUND", "shop_id: " + id +
-    // " does not exists.", id),
-    // HttpStatus.NOT_FOUND);
-    // Shop shop = shopService.findById(id);
-    // shop.setStatus(2);
-    // shopService.updateshop(id, shop);
-    // return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been
-    // deleted.", id), HttpStatus.OK);
-    // }
 
 
     @PutMapping("/bussiness/updateInfShop/{id}")
@@ -111,3 +109,4 @@ public class ShopController {
         }
     }
 }
+

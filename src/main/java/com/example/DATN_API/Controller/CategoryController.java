@@ -1,5 +1,11 @@
 package com.example.DATN_API.Controller;
 
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+
 import com.example.DATN_API.Entity.Account;
 import com.example.DATN_API.Entity.Category;
 import com.example.DATN_API.Entity.CategoryItem;
@@ -13,9 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/category")
@@ -34,6 +38,7 @@ public class CategoryController {
                                                  @RequestParam("key") Optional<String> keyfind,
                                                  @RequestParam("keyword") Optional<String> keyword) {
         Page<Category> categories = CategoryService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword);
+
         for (Category category : categories) {
             category.removeDuplicateCategoryItems();
         }
@@ -57,6 +62,7 @@ public class CategoryController {
         category.setStatus(true);
         category.setType_category(type_category);
         category.setCreate_date(create_date);
+
         if (CategoryService.findByTypeCategory(type_category) == null) {
             Category newcate = CategoryService.createCategory(category);
             return new ResponseEntity<>(new ResponObject("success", "Thêm thành công!", newcate),
@@ -73,6 +79,7 @@ public class CategoryController {
         MultipartFile imagesave = image.orElse(null);
         String type_categorysave = type_category.orElse("");
         Category categoryold = CategoryService.findByIdCategory(id);
+
         if (imagesave == null && type_categorysave.equals("")) {
             CategoryService.updateCategory(categoryold);
         } else if (imagesave == null && !type_categorysave.equals("") ) {
@@ -99,6 +106,7 @@ public class CategoryController {
             }
         }
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", categoryold), HttpStatus.OK);
+
     }
 
     @DeleteMapping("{id}")
@@ -134,6 +142,7 @@ public class CategoryController {
         newcategoryItem.setAccount(accountsave);
         newcategoryItem.setCreate_date(create_date);
         newcategoryItem.setStatus(true);
+
         if (CategoryService.findByTypeCategoryItem(typeCategoryItem) == null) {
             CategoryItem newItem = CategoryService.createCategoryItem(newcategoryItem);
             return new ResponseEntity<>(new ResponObject("success", "Thêm thành công.", newItem),
@@ -156,6 +165,7 @@ public class CategoryController {
         if (typeCategoryItemsave.equals("") && idCategorysave != 0) {
             categoryItemold.setCategory(categorysave);
         } else if (!typeCategoryItemsave.equals("") && idCategorysave == 0) {
+
             if (CategoryService.findByTypeCategoryItem(typeCategoryItemsave) != null&& !typeCategoryItemsave.equals(categoryItemold.getType_category_item())) {
                 return new ResponseEntity<>(new ResponObject("error", "Tên phân loại sản phẩm đã tồn tại!", null),
                         HttpStatus.OK);
@@ -170,6 +180,7 @@ public class CategoryController {
                 categoryItemold.setType_category_item(typeCategoryItemsave);
                 categoryItemold.setCategory(categorysave);
             }
+
         }
         CategoryItem newcategoryItem = CategoryService.updateCategoryItem(categoryItemold);
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", newcategoryItem),

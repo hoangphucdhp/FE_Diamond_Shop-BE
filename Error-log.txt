@@ -2116,6 +2116,7 @@ java.util.NoSuchElementException: No value present
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
 	at java.base/java.lang.Thread.run(Thread.java:1623)
 <<<<<<< HEAD
+<<<<<<< HEAD
 org.springframework.dao.DataIntegrityViolationException: could not execute statement [The DELETE statement conflicted with the REFERENCE constraint "FK_image_product_product". The conflict occurred in database "db_diamond", table "dbo.image_product", column 'id_product'.] [delete from product where id=?]; SQL [delete from product where id=?]; constraint [null]
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:269)
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:229)
@@ -6840,3 +6841,5 @@ Caused by: com.microsoft.sqlserver.jdbc.SQLServerException: The INSERT statement
 	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
 	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:275)
 	... 142 more
+=======
+>>>>>>> origin/dat

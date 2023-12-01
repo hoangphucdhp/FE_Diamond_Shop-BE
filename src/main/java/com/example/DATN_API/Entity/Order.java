@@ -27,10 +27,18 @@ public class Order {
 
     private String address_order;
 
+
+//    @ManyToOne
+//    @JoinColumn(name = "id_address_order")
+//    private AddressAccount address;
+
+
+
     @OneToMany(mappedBy = "order")
     private List<StatusOrder> status;
 
     private boolean pay;
+
 
     @JsonManagedReference
     @OneToMany(mappedBy = "orders")

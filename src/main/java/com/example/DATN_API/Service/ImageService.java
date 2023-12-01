@@ -23,8 +23,10 @@ import java.util.stream.Stream;
 
 @Service
 public class ImageService implements IStorageSerivce{
+
     private final Path storageFolder = Paths.get("uploads");
     private  List<String> images = new ArrayList<>();
+
 
 
 
@@ -52,11 +54,13 @@ public class ImageService implements IStorageSerivce{
         if (!isImageFile(file)) {
             throw new RuntimeException("You can only upload image file");
         }
+
         String fileExtention = FilenameUtils.getExtension(file.getOriginalFilename());
 
         generatedFileName = UUID.randomUUID().toString().replace("-", "");
 
         generatedFileName = generatedFileName +"."+ fileExtention;
+
 
         Path destinationFilePath = this.storageFolder.resolve(
                 Paths.get(generatedFileName)
@@ -71,6 +75,7 @@ public class ImageService implements IStorageSerivce{
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
+
 
         images.add(generatedFileName);
         return generatedFileName;
@@ -132,3 +137,4 @@ public class ImageService implements IStorageSerivce{
         }
     }
 }
+

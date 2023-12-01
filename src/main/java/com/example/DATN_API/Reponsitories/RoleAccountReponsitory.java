@@ -11,7 +11,7 @@ import com.example.DATN_API.Entity.RoleAccount;
 @Repository
 public interface RoleAccountReponsitory extends JpaRepository<RoleAccount, Integer> {
 
-    @Query("select r from RoleAccount r where r.account=?1")
+    @Query("select r from RoleAccount r where r.account_role=?1")
     RoleAccount findRoleAccountByAccount_role(Account account);
 
 }

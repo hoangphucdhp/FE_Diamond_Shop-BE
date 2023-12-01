@@ -31,6 +31,7 @@ public class CategoryItem {
     @JoinColumn(name = "id_account")
     private Account account;
 
+
     @JsonIgnore
     @OneToMany(mappedBy = "categoryItem_product")
     List<Product> products;

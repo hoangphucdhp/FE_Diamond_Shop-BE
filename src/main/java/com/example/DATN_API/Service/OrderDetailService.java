@@ -14,6 +14,7 @@ public class OrderDetailService {
 
     public OrderDetail save(OrderDetail orderDetail){
         return  orderDetailReponsitory.save(orderDetail);
+
     }
     public List<OrderDetail> findByIdOrder(int idOrder){
         return orderDetailReponsitory.findByIdOrder(idOrder);
@@ -22,4 +23,5 @@ public class OrderDetailService {
     public List<Object[]> getTotalByMonth(int idShop){
         return orderDetailReponsitory.getTotalByMonth(idShop);
     }
+
 }

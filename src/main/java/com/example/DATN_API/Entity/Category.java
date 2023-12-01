@@ -24,6 +24,7 @@ public class Category {
     @OneToMany(mappedBy = "category")
     private List<CategoryItem> listCategory;
 
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     @JoinColumn(name = "id_account")

@@ -31,7 +31,6 @@ public class Product {
     private List<ImageProduct> image_product;
 
     private double price;
-
     private Date create_date;
     private String description;
     private int status;
@@ -46,6 +45,7 @@ public class Product {
 
 
     @OneToMany(mappedBy = "productOrder")
+    @JsonIgnore
     private List<OrderDetail> listOrderDetail;
 
     @OneToMany(mappedBy = "product")

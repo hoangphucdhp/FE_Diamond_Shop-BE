@@ -4,19 +4,24 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.DATN_API.Entity.*;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.DATN_API.Reponsitories.ProductRepository;
 
+
 @Service
 public class ProductService {
     @Autowired
+
     ProductRepository productRepository;
     @Autowired
     ImageProductService imageProductService;
@@ -68,11 +73,13 @@ public class ProductService {
 
     public Page<Product> getPageProduct(Optional<Integer> stt, Optional<Integer> offset, Optional<Integer> sp,
                                         Optional<String> field) {
+
         String sort = field.orElse("create_date");
         int itemStart = offset.orElse(0);
         ;
         int sizePage = sp.orElse(20);
         int status = sp.orElse(1);
+
 
         return productRepository.getPageProduct(status,
                 PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort));
@@ -81,11 +88,14 @@ public class ProductService {
     public Product findById(Integer id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sản phẩm không được tìm thấy"));
+
     }
 
     public Product createProduct(Product product) {
         try {
+
             Product productsave = productRepository.save(product);
+
             return productsave;
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,8 +109,10 @@ public class ProductService {
         product.setId(id);
         product.setShop(productold.getShop());
         product.setCreate_date(productold.getCreate_date());
+
         try {
             Product productsave = productRepository.save(product);
+
             return productsave;
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,6 +120,7 @@ public class ProductService {
         }
         return null;
     }
+
 
     public boolean deleteProduct(int id) {
         try {

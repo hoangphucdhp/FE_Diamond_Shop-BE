@@ -19,7 +19,7 @@ public interface ChatMessageReponsitory extends JpaRepository<ChatMessage, Integ
     @Query("select chat from ChatMessage chat where chat.receiver=?1")
     List<ChatMessage> getAllByReceiver(Account sender);
 
-    @Query("select chat from ChatMessage chat where chat.sender.username=?1 and chat.receiver.username=?2")
+    @Query("select chat from ChatMessage chat where chat.sender.us=?1 and chat.receiver.us=?2")
     List<ChatMessage> getAll(String sender, String re);
 
     @Query(value = "INSERT INTO message (sender, receiver, image, message, time) VALUES (:sender, :receiver, CONVERT(varbinary(max), :image), :message, :time)", nativeQuery = true)

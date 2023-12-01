@@ -1,9 +1,12 @@
 package com.example.DATN_API.Service;
 
 import com.example.DATN_API.Entity.Account;
+
 import com.example.DATN_API.Reponsitories.AccountReponsitory;
 import com.example.DATN_API.Reponsitories.RoleAccountReponsitory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,10 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+
 import java.util.Optional;
 
 @Service
 public class AccountService {
+
     @Autowired
     AccountReponsitory accountReponsitory;
 
@@ -26,7 +31,7 @@ public class AccountService {
 
 
     public Account findByUsername(String username) {
-        return accountReponsitory.findByUsername(username);
+        return accountReponsitory.findByUsername(username).get();
     }
 
     public Account findAccountByIdShop(int id) {
@@ -116,10 +121,11 @@ public class AccountService {
         return account;
     }
 
+
     public Account createAccount(Account account) {
         try {
             PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-            account.setPassword(passwordEncoder.encode(account.getPassword()));
+            account.setPw(passwordEncoder.encode(account.getPassword()));
             return accountReponsitory.save(account);
 
         } catch (Exception e) {
@@ -132,7 +138,7 @@ public class AccountService {
     public Account changePass(Account account) {
         try {
             PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-            account.setPassword(passwordEncoder.encode(account.getPassword()));
+            account.setPw(passwordEncoder.encode(account.getPassword()));
             return accountReponsitory.save(account);
 
         } catch (Exception e) {

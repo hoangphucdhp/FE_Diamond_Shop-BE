@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.DATN_API.Pay.Config;
+
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 @RestController
@@ -31,10 +32,12 @@ public class PayController {
     @GetMapping("/pay")
     public String getPay(@RequestParam("price") long price, @RequestParam("typeBank") String typeBank) throws UnsupportedEncodingException {
 
+
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
         long amount = price * 100;
+
         String bankCode = typeBank;
 
         String vnp_TxnRef = Config.getRandomNumber(8);
@@ -97,7 +100,6 @@ public class PayController {
 
         return paymentUrl;
     }
-
 
     @GetMapping("/payment")
     public RedirectView voi(@RequestParam("vnp_ResponseCode") String response, RedirectAttributes attributes) {

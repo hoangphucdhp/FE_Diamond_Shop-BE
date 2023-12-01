@@ -1,54 +1,70 @@
 package com.example.DATN_API.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "account")
-public class Account {
+public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String username;
-    private String password;
+    @Column(name = "username")
+    private String us;
+    @Column(name = "password")
+    private String pw;
+    @CreatedDate
     private Date create_date;
     private boolean status;
 
+    @OneToMany(mappedBy = "account_role",fetch = FetchType.EAGER)
+    private List<RoleAccount> roles;
 
-    @OneToMany(mappedBy = "accountCreateCategory",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "accountCreateCategory")
     public List<Category> listCategory;
 
-    @OneToMany(mappedBy = "account",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "account")
     public List<CategoryItem> listCategoryItem;
 
-    @OneToMany(mappedBy = "account",fetch = FetchType.LAZY)
-    public List<RoleAccount> listRole;
-
-    @OneToOne(mappedBy = "accountShop",fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "accountShop")
+    @JsonIgnore
     private Shop shop;
 
-    @OneToOne(mappedBy = "Infaccount",fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "Infaccount")
     private InfoAccount infoAccount;
 
-    @OneToMany(mappedBy = "Addressaccount",fetch = FetchType.LAZY)
+
+    @OneToMany(mappedBy = "Addressaccount")
     private List<AddressAccount> address_account;
 
-    @OneToMany(mappedBy = "account_like",fetch = FetchType.LAZY)
+
+    @OneToMany(mappedBy = "account_like")
     private List<LikeProduct> likeProductes;
 
-    @OneToMany(mappedBy = "accountOrder",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "accountOrder")
     private List<Order> orders;
 
-    @OneToMany(mappedBy = "account_check",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "account_check")
     List<StatusOrder> statusOrders;
 
     @OneToMany(mappedBy = "sender")
@@ -58,4 +74,46 @@ public class Account {
     @OneToMany(mappedBy = "receiver")
     @JsonIgnore
     private List<ChatMessage> receiverMessage;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        roles.stream().forEach(
+                item -> {
+                    System.out.println("s");
+                    authorities.add(new SimpleGrantedAuthority("ROLE_"+item.getRole().getRole_name()));
+                }
+        );
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return pw;
+    }
+
+    @Override
+    public String getUsername() {
+        return us;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
