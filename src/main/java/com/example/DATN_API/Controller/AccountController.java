@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping("/api")
 @CrossOrigin
 @RequiredArgsConstructor
 public class AccountController {
@@ -29,7 +29,7 @@ public class AccountController {
     AddressAccountService addressAccountService;
 
 
-    @GetMapping("/getAll")
+    @GetMapping("/account/getAll")
     public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
                                                @RequestParam("sizePage") Optional<Integer> sizePage,
                                                @RequestParam("sort") Optional<String> sort) {
@@ -42,27 +42,26 @@ public class AccountController {
     }
 
 
-    @GetMapping("/{id}")
+    @GetMapping("/account/{id}")
     public ResponseEntity<ResponObject> getAccountById(@PathVariable("id") Integer id) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "get by id successfully", accountService.findAccountById(id)
         ));
     }
-
-    @GetMapping("/{id}/address")
+    @GetMapping("/account/{id}/address")
     public ResponseEntity<ResponObject> getAddressDefault(@PathVariable("id") int id) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "get address default by id successfully", addressAccountService.getAddressDefault(id)
         ));
     }
-    @PostMapping("/auth/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
-    }
-    @PostMapping("/auth/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRqeuest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
-    }
+//    @PostMapping("/auth/register")
+//    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
+//        return ResponseEntity.ok(authenticationService.register(request));
+//    }
+//    @PostMapping("/auth/login")
+//    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRqeuest request) {
+//        return ResponseEntity.ok(authenticationService.authenticate(request));
+//    }
 
 //    @PostMapping("/auth/login")
 //    public LoginRespon login(@RequestBody @Validated LoginRequest request) {

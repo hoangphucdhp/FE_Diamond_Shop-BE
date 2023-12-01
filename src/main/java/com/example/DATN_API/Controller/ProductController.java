@@ -11,12 +11,13 @@ import com.example.DATN_API.Service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.DATN_API.Service.ProductService;
 
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api")
 @CrossOrigin("*")
 public class ProductController {
 	@Autowired
@@ -27,7 +28,7 @@ public class ProductController {
 	StorageService storageService;
 
 
-    @GetMapping("/findAll")
+    @GetMapping("/product/findAll")
     public ResponseEntity<ResponObject> findAll(@RequestParam("offset") Optional<Integer> offSet,
                                                 @RequestParam("sizePage") Optional<Integer>  sizePage,
                                                 @RequestParam("sort") Optional<String> sort,
@@ -38,7 +39,7 @@ public class ProductController {
     }
 
 
-	@GetMapping()
+	@GetMapping("/product")
 	public ResponseEntity<List<Product>> getAll(@RequestParam("status") Optional<String> getstatus) {
 		String status = getstatus.orElse("");
 		if (status.equals("isactive")) {
@@ -49,7 +50,7 @@ public class ProductController {
 		return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
 	}
 
-	@GetMapping("{id}")
+	@GetMapping("/product/{id}")
 	public ResponseEntity<Product> findById(@PathVariable Integer id) {
 		if (productService.existsById(id)) {
 			return new ResponseEntity<>(productService.findById(id), HttpStatus.OK);
@@ -57,7 +58,7 @@ public class ProductController {
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
-	@PostMapping("/shop/{shop}")
+	@PostMapping("/product/shop/{shop}")
 	public ResponseEntity<ResponObject> create(@PathVariable("shop") int shop, @RequestBody Product product) {
 		Shop shop2 = shopService.findById(shop);
 		product.setShop(shop2);
@@ -67,7 +68,7 @@ public class ProductController {
 	}
 
 
-	@PutMapping("{id}")
+	@PutMapping("/product/{id}")
 	public ResponseEntity<ResponObject> update(@PathVariable("id") Integer id, @RequestBody Product product) {
 		if (!productService.existsById(id))
 			return new ResponseEntity<>(
@@ -79,7 +80,7 @@ public class ProductController {
 				HttpStatus.OK);
 	}
 
-	@DeleteMapping("{id}")
+	@DeleteMapping("/product/{id}")
 	public ResponseEntity<ResponObject> delete(@PathVariable("id") Integer id) {
 		if (!productService.existsById(id))
 			return new ResponseEntity<>(new ResponObject("NOT_FOUND", "Product_id: " + id + " does not exists.", id),
@@ -91,7 +92,7 @@ public class ProductController {
 	}
 
 	// Storage
-	@PostMapping("/createStorage/{product}")
+	@PostMapping("/product/createStorage/{product}")
 	public ResponseEntity<ResponObject> createStorage(@PathVariable("product") Integer product,
 			@RequestBody Storage storage) {
 		Product newProduct = productService.findById(product);
@@ -101,7 +102,7 @@ public class ProductController {
 				HttpStatus.CREATED);
 	}
 
-	@PutMapping("/updateStorage/{id}/{idProduct}")
+	@PutMapping("/product/updateStorage/{id}/{idProduct}")
 	public ResponseEntity<ResponObject> updateStorage(@PathVariable("id") Integer id,
 			@PathVariable("idProduct") Integer idProduct, @RequestBody Storage storage) {
 		Product newProduct = productService.findById(idProduct);
@@ -111,7 +112,7 @@ public class ProductController {
 				HttpStatus.CREATED);
 	}
 
-	@GetMapping("/find")
+	@GetMapping("/product/find")
 	public ResponseEntity<ResponObject> find(@RequestParam String key, @RequestParam String valueKeyword,
 											 @RequestParam String idCategoryItem, @RequestParam String minQuantity, @RequestParam String maxQuantity,
 											 @RequestParam String status, @RequestParam String stocking, @RequestParam("shop") int idshop) {
@@ -184,8 +185,8 @@ public class ProductController {
 	}
 
 
-
-    @PutMapping("/verify/{id}")
+	@PreAuthorize("hasRole('ROlE_ADMIN')")
+    @PutMapping("/auth/product/verify/{id}")
     public ResponseEntity<ResponObject> verifyProduct(@PathVariable("id") Integer id) {
         Product product = productService.findById(id);
         product.setStatus(1);
@@ -193,7 +194,8 @@ public class ProductController {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "verify product succsess", product),
                 HttpStatus.CREATED);
     }
-    @PutMapping("/ban/{id}")
+	@PreAuthorize("hasRole('ROlE_ADMIN')")
+    @PutMapping("/auth/product/ban/{id}")
     public ResponseEntity<ResponObject> banProduct(@PathVariable("id") Integer id) {
         Product product = productService.findById(id);
         product.setStatus(2);
@@ -201,7 +203,7 @@ public class ProductController {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "ban product succsess", product),
                 HttpStatus.CREATED);
     }
-	@GetMapping("/name/{status}")
+	@GetMapping("/product/name/{status}")
 	public ResponseEntity<ResponObject> find(@PathVariable("status") Optional<Integer> stt,@RequestParam("keyword") Optional<String> keyword) {
 		List<Shop> shops = productService.findByName(keyword,stt);
 

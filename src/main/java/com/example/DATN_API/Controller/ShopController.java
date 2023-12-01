@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/shop")
+@RequestMapping("/api")
 @CrossOrigin("*")
 public class ShopController {
     @Autowired
@@ -26,14 +26,14 @@ public class ShopController {
     @Autowired
     OrderService orderService;
 
-    @GetMapping("/findAll")
+    @GetMapping("/shop/findAll")
     public ResponseEntity<ResponObject> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "find shop by product", shopService.findAll()
         ));
     }
 
-    @GetMapping("/findByProduct/{id}")
+    @GetMapping("/shop/findByProduct/{id}")
     public ResponseEntity<ResponObject> findByProduct(@PathVariable("id") int idProduct) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "find shop by product", shopService.findShopByProduct(idProduct)
@@ -41,14 +41,14 @@ public class ShopController {
     }
 
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/shop/get/{id}")
     public ResponseEntity<ResponObject> findById(@PathVariable("id") int idShop) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "find shop by product", shopService.findById(idShop)
         ));
     }
 
-    @GetMapping("/{idShop}/status/{status}")
+    @GetMapping("/shop/{idShop}/status/{status}")
     public ResponseEntity<ResponObject> findByShopAndStatus(@PathVariable("status") int status, @PathVariable("idShop") int idShop) {
         Page<Order> orders = orderService.findOrderByShop(idShop);
         List<Order> ordersNew = new ArrayList<>();
@@ -64,13 +64,13 @@ public class ShopController {
         ));
     }
 
-    @GetMapping()
+    @GetMapping("/shop")
     public ResponseEntity<List<Shop>> getAll() {
 
         return new ResponseEntity<>(shopService.findAll(), HttpStatus.OK);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/shop/{id}")
     public ResponseEntity<Shop> findById(@PathVariable Integer id) {
         if (shopService.existsById(id)) {
             return new ResponseEntity<>(shopService.findById(id), HttpStatus.OK);
@@ -78,7 +78,7 @@ public class ShopController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping()
+    @PostMapping("/shop")
     public ResponseEntity<ResponObject> create(@RequestParam("image") MultipartFile
                                                        image, @RequestParam("shopName") String Shopname, @RequestParam("idAccount") Integer idAccount) {
 //        Shop shopnew = shopService.createShop(shop);
@@ -86,7 +86,7 @@ public class ShopController {
                 HttpStatus.CREATED);
     }
 
-    @PutMapping("/admin/update/{id}/{status}")
+    @PutMapping("/shop/admin/update/{id}/{status}")
     public ResponseEntity<ResponObject> updatestatusAdmin(@PathVariable("id") Integer id, @PathVariable("status") Integer status) {
         Shop shop = shopService.findById(id);
         shop.setStatus(status);
@@ -104,7 +104,7 @@ public class ShopController {
 //        shopService.updateshop(id, shop);
 //        return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been deleted.", id), HttpStatus.OK);
 //    }
-    @GetMapping("/find/product/status/{status}")
+    @GetMapping("/shop/find/product/status/{status}")
     public ResponseEntity<ResponObject> findById(@PathVariable Optional<Integer> status) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponObject(
@@ -112,7 +112,7 @@ public class ShopController {
                         ,shopService.findShopByStatusProduct(status)));
     }
 
-    @GetMapping("/find/product/status/{status}/search")
+    @GetMapping("/shop/find/product/status/{status}/search")
     public ResponseEntity<ResponObject> search(@PathVariable Optional<Integer> status, @RequestParam("type") Optional<Integer> type,
                                                @RequestParam("keyword") Optional<String> keyword
                                                ) {

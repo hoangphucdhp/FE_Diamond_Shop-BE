@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/order")
+@RequestMapping("/api/")
 public class OrderController {
     @Autowired
     OrderService orderService;
@@ -27,7 +27,7 @@ public class OrderController {
     OrderDetailService orderDetailService;
     @Autowired
     AccountService accountService;
-    @GetMapping("/getAll")
+    @GetMapping("auth/order/getAll")
     public ResponseEntity<ResponObject> getall(@RequestParam("offset") Optional<Integer> offSet,
                                                @RequestParam("sizePage") Optional<Integer>  sizePage,
                                                @RequestParam("sort") Optional<String> sort)
@@ -37,14 +37,14 @@ public class OrderController {
         ));
     }
 
-    @GetMapping("/getAllList")
+    @GetMapping("auth/getAllList")
     public ResponseEntity<ResponObject> getall1()
     {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS","get all order",orderService.findAllList()
         ));
     }
-    @PostMapping("/create/account/{idAccount}")
+    @PostMapping("auth/create/account/{idAccount}")
     public ResponseEntity<ResponObject> create(@RequestBody Order order,@PathVariable("idAccount") int idAccount){
         Account account = new Account();
         account.setId(idAccount);
@@ -77,25 +77,25 @@ public class OrderController {
                 "SUCCESS","create order succsessfully",orderSave
         ));
     }
-    @GetMapping("/find/{id}")
+    @GetMapping("auth/order/find/{id}")
     public ResponseEntity<ResponObject> findById(@PathVariable("id") Integer idOrder){
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
            "SUCCESS","FIND ORDER BY ID", orderService.findOrderById(idOrder)
         ));
     }
-    @GetMapping("/find/account/{id}")
+    @GetMapping("auth/order/find/account/{id}")
     public ResponseEntity<ResponObject> findByIdAccount(@PathVariable("id") Integer idAccount){
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS","FIND ORDER BY ID", orderService.findOrderByAccount(idAccount)
         ));
     }
-    @GetMapping("/find/shop/{id}")
+    @GetMapping("auth/find/shop/{id}")
     public ResponseEntity<ResponObject> findByIdShop(@PathVariable("id") Integer idShop){
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS","FIND ORDER BY ID", orderService.findOrderByShop(idShop)
         ));
     }
-    @GetMapping("/findByStatus/{status}")
+    @GetMapping("auth/findByStatus/{status}")
     public ResponseEntity<ResponObject> findByStatus(@PathVariable("status") int status){
         List<Order> orders = orderService.findAllList();
         List<Order> ordersNew = new ArrayList<>();
@@ -109,7 +109,7 @@ public class OrderController {
                 "SUCCESS","FIND ORDER STATUS", ordersNew
         ));
     }
-    @GetMapping("/shop/{idShop}/status/{status}")
+    @GetMapping("auth/order/shop/{idShop}/status/{status}")
     public ResponseEntity<ResponObject> findByShopAndStatus(@PathVariable("status") int status,@PathVariable("idShop") int idShop){
         Page<Order> orders = orderService.findOrderByShop(idShop);
         List<Order> ordersNew = new ArrayList<>();
@@ -125,7 +125,7 @@ public class OrderController {
         ));
     }
 
-    @PutMapping("/update/{idOrder}/account/{idAccount}")
+    @PutMapping("auth/order/update/{idOrder}/account/{idAccount}")
     public ResponseEntity<ResponObject> update(@RequestParam("status") int st,
                                                @PathVariable("idAccount") int idAccount,
                                                @PathVariable("idOrder") Integer id){
