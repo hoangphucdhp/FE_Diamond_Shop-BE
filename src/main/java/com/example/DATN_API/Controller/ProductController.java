@@ -170,8 +170,9 @@ public class ProductController {
                                                @RequestParam("sort") Optional<String> sort,
                                                @RequestParam("sortType") Optional<String> sortType,
                                                @RequestParam("key") Optional<String> keyfind,
-                                               @RequestParam("keyword") Optional<String> keyword) {
-        Page<Product> accounts = productService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword);
+                                               @RequestParam("keyword") Optional<String> keyword,
+                                               @RequestParam("status") Optional<String> status) {
+        Page<Product> accounts = productService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword,status);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponObject(
                         "SUCCESS", "GET ALL ACCOUNT", accounts));

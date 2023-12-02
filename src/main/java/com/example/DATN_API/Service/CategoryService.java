@@ -158,8 +158,8 @@ public class CategoryService {
         return newaccount.get();
     }
 
-    public CategoryItem findByTypeCategoryItem(String id) {
-        return CategoryItemReponsitory.findByType_categoryItem(id) != null ? CategoryItemReponsitory.findByType_categoryItem(id) : null;
+    public CategoryItem findByTypeCategoryItem(String id,int cate) {
+        return CategoryItemReponsitory.findByType_categoryItem(id,cate) != null ? CategoryItemReponsitory.findByType_categoryItem(id,cate) : null;
     }
 }
 

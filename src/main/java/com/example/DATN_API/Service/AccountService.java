@@ -30,8 +30,8 @@ public class AccountService {
     RoleAccountReponsitory roleAccountReponsitory;
 
 
-    public Account findByUsername(String username) {
-        return accountReponsitory.findByUsername(username).get();
+    public Optional<Account> findByUsername(String username) {
+        return accountReponsitory.findByUsername(username);
     }
 
     public Account findAccountByIdShop(int id) {

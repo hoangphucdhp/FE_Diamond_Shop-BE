@@ -47,7 +47,6 @@ public class Account implements UserDetails {
     public List<CategoryItem> listCategoryItem;
 
     @OneToOne(mappedBy = "accountShop")
-    @JsonIgnore
     private Shop shop;
 
     @OneToOne(mappedBy = "Infaccount")

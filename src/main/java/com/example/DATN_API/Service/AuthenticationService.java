@@ -6,11 +6,14 @@ import com.example.DATN_API.Reponsitories.RoleAccountResponsitory;
 import com.example.DATN_API.Security.JwtService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,10 +29,12 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    @Autowired
+    AccountService accountService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         Role role = new Role();
-        role.setId(1);
+        role.setId(3);
         RoleAccount roleAccount = new RoleAccount();
         roleAccount.setRole(role);
 
@@ -41,6 +46,7 @@ public class AuthenticationService {
                 .pw(passwordEncoder.encode(request.getPassword()))
                 .roles(roleUsers)
                 .create_date(new Date())
+                .status(true)
                 .build();
         roleAccount.setAccount_role(user);
         accountReponsitory.save(user);

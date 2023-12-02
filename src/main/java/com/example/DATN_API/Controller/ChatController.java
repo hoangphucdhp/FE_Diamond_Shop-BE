@@ -39,8 +39,8 @@ public class ChatController {
     @MessageMapping("/private-message")
     public Message recMessage(@Payload Message message) {
         try {
-            Account accountSender = accountService.findByUsername(message.getSender());
-            Account accountReceiver = accountService.findByUsername(message.getReceiver());
+            Account accountSender = accountService.findByUsername(message.getSender()).get();
+            Account accountReceiver = accountService.findByUsername(message.getReceiver()).get();
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setSender(accountSender);
             chatMessage.setReceiver(accountReceiver);

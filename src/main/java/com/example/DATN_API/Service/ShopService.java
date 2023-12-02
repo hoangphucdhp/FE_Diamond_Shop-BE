@@ -10,7 +10,7 @@ import com.example.DATN_API.Entity.AddressShop;
 import com.example.DATN_API.Entity.Product;
 import com.example.DATN_API.Entity.Shop;
 import com.example.DATN_API.Reponsitories.AddressShopReponsitory;
-import com.example.DATN_API.Reponsitories.ProductReponsitory;
+import com.example.DATN_API.Reponsitories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +30,7 @@ public class ShopService {
     @Autowired
     IStorageSerivce iStorageSerivce;
 
-    ProductReponsitory productReponsitory;
+    ProductRepository productRepository;
 
 
     public List<Shop> findAll() {
@@ -130,7 +130,7 @@ public class ShopService {
         int status = stt.orElse(1);
         List<Shop> shops = new ArrayList<>();
 
-        List<Product> products = productReponsitory.findByName(keyword, status);
+        List<Product> products = productRepository.findByName(keyword, status);
         List<Integer> listIdShop = new ArrayList<>();
         products.stream().forEach(item -> {
             if (!listIdShop.contains(item.getShop().getId())) {
@@ -155,7 +155,7 @@ public class ShopService {
         int status = stt.orElse(1);
         List<Shop> shops = new ArrayList<>();
 
-        List<Product> products = productReponsitory.findByName(keyword, status);
+        List<Product> products = productRepository.findByName(keyword, status);
         List<Integer> listIdShop = new ArrayList<>();
         products.stream().forEach(item -> {
             if (!listIdShop.contains(item.getShop().getId())) {

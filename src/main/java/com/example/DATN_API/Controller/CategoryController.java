@@ -143,7 +143,7 @@ public class CategoryController {
         newcategoryItem.setCreate_date(create_date);
         newcategoryItem.setStatus(true);
 
-        if (CategoryService.findByTypeCategoryItem(typeCategoryItem) == null) {
+        if (CategoryService.findByTypeCategoryItem(typeCategoryItem,categorysave.getId()) == null) {
             CategoryItem newItem = CategoryService.createCategoryItem(newcategoryItem);
             return new ResponseEntity<>(new ResponObject("success", "Thêm thành công.", newItem),
                     HttpStatus.CREATED);
@@ -166,14 +166,14 @@ public class CategoryController {
             categoryItemold.setCategory(categorysave);
         } else if (!typeCategoryItemsave.equals("") && idCategorysave == 0) {
 
-            if (CategoryService.findByTypeCategoryItem(typeCategoryItemsave) != null&& !typeCategoryItemsave.equals(categoryItemold.getType_category_item())) {
+            if (CategoryService.findByTypeCategoryItem(typeCategoryItemsave,categorysave.getId()) != null&& !typeCategoryItemsave.equals(categoryItemold.getType_category_item())) {
                 return new ResponseEntity<>(new ResponObject("error", "Tên phân loại sản phẩm đã tồn tại!", null),
                         HttpStatus.OK);
             } else {
                 categoryItemold.setType_category_item(typeCategoryItemsave);
             }
         } else if (!typeCategoryItemsave.equals("") && idCategorysave != 0) {
-            if (CategoryService.findByTypeCategoryItem(typeCategoryItemsave) != null&& !typeCategoryItemsave.equals(categoryItemold.getType_category_item())) {
+            if (CategoryService.findByTypeCategoryItem(typeCategoryItemsave,categorysave.getId()) != null&& !typeCategoryItemsave.equals(categoryItemold.getType_category_item())) {
                 return new ResponseEntity<>(new ResponObject("error", "Tên phân loại sản phẩm đã tồn tại!", null),
                         HttpStatus.OK);
             } else {

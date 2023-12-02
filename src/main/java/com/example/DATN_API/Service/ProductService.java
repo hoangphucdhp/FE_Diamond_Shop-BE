@@ -175,18 +175,17 @@ public class ProductService {
     }
 
     //Admin
-    public Page<Product> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> sortType, Optional<String> key, Optional<String> keyword) {
+    public Page<Product> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field, Optional<String> sortType, Optional<String> key, Optional<String> keyword, Optional<String> stt) {
         String sortby = field.orElse("product_name");
         int itemStart = offset.orElse(0);
         int sizePage = sp.orElse(10);
         String keyfind = key.orElse("");
         String keywords = keyword.orElse("");
-
+        String status = stt.orElse("");
         Sort.Direction direction;
 
         // Sort
         String typeSort = sortType.orElse("asc");
-
 
         if (sortby == null || sortby.isEmpty()) {
             sortby = "product_name";
@@ -196,7 +195,6 @@ public class ProductService {
             typeSort = "asc";
         }
 
-
         if (typeSort.equals("asc")) {
             direction = Sort.Direction.ASC;
         } else {
@@ -205,18 +203,25 @@ public class ProductService {
 
         Sort sort = Sort.by(direction, sortby);
 
+        // Kiểm tra nếu tất cả các tham số đều rỗng thì trả về tất cả dữ liệu
+        if (keyfind.isEmpty() && keywords.isEmpty() && status.isEmpty()) {
+            return productRepository.getAll(PageRequest.of(itemStart, sizePage, sort), status);
+        }
+
+        // Xử lý logic để lấy dữ liệu dựa trên các tham số được chỉ định
         if (keyfind.equals("name")) {
-            return productRepository.getAllbyName(PageRequest.of(itemStart, sizePage, sort), keywords);
+            return productRepository.getAllbyName(PageRequest.of(itemStart, sizePage, sort), keywords, status);
         } else if (keyfind.equals("shop")) {
-            return productRepository.getAllbyShop(PageRequest.of(itemStart, sizePage, sort), keywords);
+            return productRepository.getAllbyShop(PageRequest.of(itemStart, sizePage, sort), keywords, status);
         } else if (keyfind.equals("id")) {
-            return productRepository.getAllbyId(PageRequest.of(itemStart, sizePage, sort), keywords);
-        } else if (keyfind.equals("") && !keywords.equals("")) {
-            return productRepository.getAllbyId(PageRequest.of(itemStart, sizePage, sort), keywords);
+            return productRepository.getAllbyId(PageRequest.of(itemStart, sizePage, sort), keywords, status);
+        } else if (keyfind.isEmpty() && !keywords.isEmpty()) {
+            return productRepository.getAllbyId(PageRequest.of(itemStart, sizePage, sort), keywords, status);
         } else {
-            return productRepository.getAll(PageRequest.of(itemStart, sizePage, sort));
+            return productRepository.getAll(PageRequest.of(itemStart, sizePage, sort), status);
         }
     }
+
 
     public Product adminUpdateStatus(int id, int status) {
         Product product = findById(id);
