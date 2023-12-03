@@ -21,7 +21,7 @@ public interface CategoryReponsitory extends JpaRepository<Category, Integer> {
     @Query("select cate from Category cate where CAST(cate.id as string ) like %?1%")
     Page<Category> getAllById(Pageable pageable,String id);
 
-    @Query("select cate from Category cate where CAST(cate.type_category as string ) like %?1%")
+    @Query("select cate from Category cate where cate.type_category like %?1%")
     Page<Category> getAllByType_category(Pageable pageable,String id);
 
     @Query("select cate from Category cate where LOWER(cate.type_category) = LOWER(?1)")

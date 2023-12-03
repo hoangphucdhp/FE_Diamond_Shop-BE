@@ -38,7 +38,6 @@ public class CategoryController {
                                                  @RequestParam("key") Optional<String> keyfind,
                                                  @RequestParam("keyword") Optional<String> keyword) {
         Page<Category> categories = CategoryService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword);
-
         for (Category category : categories) {
             category.removeDuplicateCategoryItems();
         }

@@ -66,7 +66,6 @@ public class AccountController {
     public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet, @RequestParam("sizePage") Optional<Integer> sizePage, @RequestParam("key") Optional<String> keyfind, @RequestParam("keyword") Optional<String> keyword, @RequestParam("sort") Optional<String> sort, @RequestParam("sortType") Optional<String> sortType, @RequestParam("shoporaccount") Optional<String> shoporaccount) {
         Page<Account> accounts = accountService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword, shoporaccount);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject("SUCCESS", "GET ALL ACCOUNT", accounts));
-
     }
 //    private final AuthenticationService authenticationService;
 

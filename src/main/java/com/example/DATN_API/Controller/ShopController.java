@@ -76,9 +76,9 @@ public class ShopController {
     }
 
 
-    @PutMapping("/admin/update/{id}/{status}")
-    public ResponseEntity<ResponObject> updatestatusAdmin(@PathVariable("id") Integer id,
-                                                          @PathVariable("status") Integer status) {
+    @PutMapping("/admin/update")
+    public ResponseEntity<ResponObject> updatestatusAdmin(@RequestParam("id") Integer id,
+                                                          @RequestParam("status") Integer status) {
         Shop shop = shopService.findById(id);
         shop.setStatus(status);
         RoleAccount roleAcc = new RoleAccount();
