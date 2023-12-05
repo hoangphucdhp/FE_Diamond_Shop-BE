@@ -109,10 +109,8 @@ public class ProductService {
         product.setId(id);
         product.setShop(productold.getShop());
         product.setCreate_date(productold.getCreate_date());
-
         try {
             Product productsave = productRepository.save(product);
-
             return productsave;
         } catch (Exception e) {
             e.printStackTrace();

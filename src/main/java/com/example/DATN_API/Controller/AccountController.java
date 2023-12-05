@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -30,7 +31,7 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping("/api/")
 @CrossOrigin
 public class AccountController {
 
@@ -61,8 +62,7 @@ public class AccountController {
     @Autowired
     IStorageSerivce iStorageSerivce;
 
-
-    @GetMapping("/getAll")
+    @GetMapping("auth/account/getAll")
     public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet, @RequestParam("sizePage") Optional<Integer> sizePage, @RequestParam("key") Optional<String> keyfind, @RequestParam("keyword") Optional<String> keyword, @RequestParam("sort") Optional<String> sort, @RequestParam("sortType") Optional<String> sortType, @RequestParam("shoporaccount") Optional<String> shoporaccount) {
         Page<Account> accounts = accountService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword, shoporaccount);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject("SUCCESS", "GET ALL ACCOUNT", accounts));
@@ -80,17 +80,17 @@ public class AccountController {
 //                )
 //        );
 //    }
-    @GetMapping("/{id}")
+    @GetMapping("account/{id}")
     public ResponseEntity<ResponObject> getAccountById(@PathVariable("id") Integer id) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject("SUCCESS", "get by id successfully", accountService.findById(id)));
     }
 
-    @GetMapping("/{id}/address")
+    @GetMapping("account/{id}/address")
     public ResponseEntity<ResponObject> getAddressDefault(@PathVariable("id") int id) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject("SUCCESS", "get address default by id successfully", addressAccountService.getAddressDefault(id)));
     }
 
-    @PostMapping("/login")
+    @PostMapping("account/login")
     public ResponseEntity<ResponObject> login(@RequestBody Account account) {
         try {
             PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -115,7 +115,7 @@ public class AccountController {
         return new ResponseEntity<>(new ResponObject("error", "Đăng nhập thất bại!", null), HttpStatus.OK);
     }
 
-    @PostMapping("/{email}")
+    @PostMapping("account/{email}")
     public ResponseEntity<Map<String, Object>> codeValidate(@PathVariable("email") String email) {
         Map<String, Object> response = new HashMap<>();
         response.put("success", false);
@@ -152,7 +152,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{email}/{newpassword}")
+    @PostMapping("auth/account/{email}/{newpassword}")
     public ResponseEntity<ResponObject> rePassword(@PathVariable("email") String email, @PathVariable("newpassword") String newpassword) {
         try {
             Account account = accountService.findByEmail(email);
@@ -165,7 +165,7 @@ public class AccountController {
         return new ResponseEntity<>(new ResponObject("error", "Đặt lại mật khẩu thất bại!", null), HttpStatus.OK);
     }
 
-    @PostMapping("/register/{email}")
+    @PostMapping("account/register/{email}")
     public ResponseEntity<ResponObject> register(@PathVariable("email") String email, @RequestBody Account account) {
         try {
             Account accounts = accountService.findByUsername(account.getUsername()).get();
@@ -208,7 +208,7 @@ public class AccountController {
 
     }
 
-    @PostMapping("/forgot")
+    @PostMapping("account/forgot")
     public ResponseEntity<ResponObject> forgotPassword(@RequestBody InfoAccount inAccount) {
         try {
             String regexPattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@" + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
@@ -241,7 +241,7 @@ public class AccountController {
         return new ResponseEntity<>(new ResponObject("error", "Gửi mã xác nhận thất bại!", null), HttpStatus.OK);
     }
 
-    @PostMapping("/profile")
+    @PostMapping("auth/account/profile")
     public ResponseEntity<InfoAccount> profileAccount() {
         if (infoAccountService.findById_account(5) != null) {
             return new ResponseEntity<>(infoAccountService.findById_account(5), HttpStatus.OK);
@@ -249,10 +249,9 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/updateprofile/{username}")
+    @PostMapping("auth/account/updateprofile/{username}")
     public ResponseEntity<ResponObject> updateProfile(@PathVariable("username") String username, @RequestBody InfoAccount inAccount) {
         try {
-
             Account account = accountService.findByUsername(username).get();
             InfoAccount inAccounts = infoAccountService.findById_account(account.getId());
             InfoAccount inCheck1 = infoAccountService.findByPhone(inAccount.getPhone());
@@ -283,7 +282,7 @@ public class AccountController {
         return new ResponseEntity<>(new ResponObject("error", "Cập nhật thông tin thất bại!", null), HttpStatus.OK);
     }
 
-    @PostMapping("/changepass/{username}")
+    @PostMapping("auth/account/changepass/{username}")
     public ResponseEntity<ResponObject> changePass(@PathVariable("username") String username, @RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword, @RequestParam("reNewPassword") String reNewPassword) {
         PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         try {
@@ -306,7 +305,7 @@ public class AccountController {
         return null;
     }
 
-    @PostMapping("/saleregis/{username}/{shop}")
+    @PostMapping("auth/account/saleregis/{username}/{shop}")
     public ResponseEntity<ResponObject> saleRegis(@PathVariable("username") String username, @PathVariable("shop") String shop_name, @RequestBody AddressShop address) {
         LocalDate localDate = LocalDate.now();
         Date date = java.sql.Date.valueOf(localDate);
@@ -336,7 +335,7 @@ public class AccountController {
         return new ResponseEntity<>(new ResponObject("error", "Đăng ký kênh bán hàng thất bại!", null), HttpStatus.OK);
     }
 
-    @PostMapping("/createAddress/{username}")
+    @PostMapping("auth/account/createAddress/{username}")
     public ResponseEntity<ResponObject> createAddressAccount(@PathVariable("username") String username, @RequestBody AddressAccount addressAccount) {
         try {
             Account account = accountService.findByUsername(username).get();
@@ -356,7 +355,7 @@ public class AccountController {
         return null;
     }
 
-    @PostMapping("/useAddress/{username}/{idAddress}")
+    @PostMapping("auth/account/useAddress/{username}/{idAddress}")
     public ResponseEntity<ResponObject> useAddress(@PathVariable("username") String username, @PathVariable("idAddress") int idAddress) {
         try {
             Account account = accountService.findByUsername(username).get();
@@ -377,7 +376,7 @@ public class AccountController {
         return null;
     }
 
-    @PostMapping("/deleteAddress/{username}/{idAddress}")
+    @PostMapping("auth/account/deleteAddress/{username}/{idAddress}")
     public ResponseEntity<ResponObject> deleteAddressAccount(@PathVariable("username") String username, @PathVariable("idAddress") int idAddress) {
         try {
             Account account = accountService.findByUsername(username).get();
@@ -390,7 +389,7 @@ public class AccountController {
         return null;
     }
 
-    @PostMapping("/updateAddress/{username}/{idAddress}")
+    @PostMapping("auth/account/updateAddress/{username}/{idAddress}")
     public ResponseEntity<ResponObject> updateAddressAccount(@PathVariable("username") String username, @PathVariable("idAddress") int idAddress, @RequestBody AddressAccount addressUpdate) {
         try {
             Account account = accountService.findByUsername(username).get();
@@ -409,7 +408,7 @@ public class AccountController {
         return null;
     }
 
-    @PostMapping("/updateImage/{username}")
+    @PostMapping("auth/account/updateImage/{username}")
     public ResponseEntity<ResponObject> updateImage(@PathVariable("username") String username, @RequestParam("image") Optional<MultipartFile> image) {
         MultipartFile imageSave = image.orElse(null);
         if (imageSave != null) {
@@ -423,7 +422,7 @@ public class AccountController {
         return new ResponseEntity<>(new ResponObject("error", "Thay đổi ảnh thất bại!", null), HttpStatus.OK);
     }
 
-    @GetMapping("/shop/{username}")
+    @GetMapping("auth/account/shop/{username}")
     public ResponseEntity<ResponObject> getShop(@PathVariable("username") String username) {
         Account account = accountService.findByUsername(username).get();
         if (account != null) {
@@ -434,7 +433,7 @@ public class AccountController {
         }
     }
 
-    @PostMapping("/shop/updateImage/{username}")
+    @PostMapping("auth/account/shop/updateImage/{username}")
     public ResponseEntity<ResponObject> updateImageShop(@PathVariable("username") String username, @RequestParam("image") Optional<MultipartFile> image) {
         MultipartFile imageSave = image.orElse(null);
         if (imageSave != null) {
@@ -452,13 +451,14 @@ public class AccountController {
         return new ResponseEntity<>(new ResponObject("error", "Thay đổi ảnh thất bại!", null), HttpStatus.OK);
     }
 
-    @PutMapping("/adminupdate/{id}")
+    @PutMapping("auth/account/adminupdate/{id}")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> AdminUpdate(@PathVariable("id") Integer id, @RequestParam("status") Boolean status) {
         Account newaccount = accountService.AdminUpdate(id, status);
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", newaccount), HttpStatus.OK);
     }
 
-    @GetMapping("/findaccountbyshopname/{id}")
+    @GetMapping("account/findaccountbyshopname/{id}")
     public ResponseEntity<ResponObject> findAccountbyShopName(@PathVariable("id") String id) {
         Account account=accountService.findAccountByShopName(id);
         return new ResponseEntity<>(new ResponObject("success", "Tìm thành công.", account), HttpStatus.OK);

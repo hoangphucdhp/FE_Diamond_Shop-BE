@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api/")
 @CrossOrigin("*")
 public class ProductController {
     @Autowired
@@ -36,7 +36,7 @@ public class ProductController {
     @Autowired
     CategoryService categoryService;
 
-    @GetMapping("/findAll")
+    @GetMapping("product/findAll")
     public ResponseEntity<ResponObject> findAll(@RequestParam("offset") Optional<Integer> offSet,
                                                 @RequestParam("sizePage") Optional<Integer> sizePage,
                                                 @RequestParam("sort") Optional<String> sort,
@@ -51,7 +51,7 @@ public class ProductController {
 //        return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
 //    }
 
-    @GetMapping("/getByShop")
+    @GetMapping("product/getByShop")
     public ResponseEntity<Page<Product>> getAllbyShop(@RequestParam("offset") Optional<Integer> offSet,
                                                       @RequestParam("sizePage") Optional<Integer> sizePage,
                                                       @RequestParam("sort") Optional<String> sort, @RequestParam("key") Optional<String> key,
@@ -59,7 +59,7 @@ public class ProductController {
         return new ResponseEntity<>(productService.findAllbyShop(offSet, sizePage, sort, key, keyword, idshop), HttpStatus.OK);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("product/{id}")
     public ResponseEntity<Product> findById(@PathVariable Integer id) {
         if (productService.existsById(id)) {
             return new ResponseEntity<>(productService.findById(id), HttpStatus.OK);
@@ -67,7 +67,7 @@ public class ProductController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/shop/{shop}")
+    @PostMapping("auth/product/shop/{shop}")
     public ResponseEntity<ResponObject> create(@PathVariable("shop") int shop, @RequestBody Product product) {
         Shop shop2 = shopService.findById(shop);
         product.setShop(shop2);
@@ -77,7 +77,7 @@ public class ProductController {
     }
 
 
-    @PutMapping("{id}")
+    @PutMapping("auth/product/{id}")
     public ResponseEntity<ResponObject> update(@PathVariable("id") Integer id, @RequestBody Product product) {
         if (!productService.existsById(id))
             return new ResponseEntity<>(
@@ -89,7 +89,7 @@ public class ProductController {
                 HttpStatus.OK);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("auth/product{id}")
     public ResponseEntity<ResponObject> delete(@PathVariable("id") Integer id) {
         if (!productService.existsById(id))
             return new ResponseEntity<>(new ResponObject("NOT_FOUND", "Product_id: " + id + " does not exists.", id),
@@ -100,7 +100,7 @@ public class ProductController {
         return new ResponseEntity<>(new ResponObject("success", "Xóa thành công.", id), HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("auth/product/delete/{id}")
     public ResponseEntity<ResponObject> delete2(@PathVariable("id") Integer id) {
         if (productService.deleteProduct(id)) {
             return new ResponseEntity<>(new ResponObject("success", "Xóa thành công.", id), HttpStatus.OK);
@@ -109,7 +109,7 @@ public class ProductController {
     }
 
     // Storage
-    @PostMapping("/createStorage/{product}")
+    @PostMapping("auth/product/createStorage/{product}")
     public ResponseEntity<ResponObject> createStorage(@PathVariable("product") Integer product,
                                                       @RequestBody Storage storage) {
         Product newProduct = productService.findById(product);
@@ -119,7 +119,7 @@ public class ProductController {
                 HttpStatus.CREATED);
     }
 
-    @PutMapping("/updateStorage/{id}/{idProduct}")
+    @PutMapping("auth/product/updateStorage/{id}/{idProduct}")
     public ResponseEntity<ResponObject> updateStorage(@PathVariable("id") Integer id,
                                                       @PathVariable("idProduct") Integer idProduct, @RequestBody Storage storage) {
         Product newProduct = productService.findById(idProduct);
@@ -139,7 +139,7 @@ public class ProductController {
     }
 
 
-    @GetMapping("/top10")
+    @GetMapping("product/top10")
     public ResponseEntity<List<Object[]>> getTop10Products() {
         List<Object[]> top10Products = productService.getTop10Products();
         if (top10Products.isEmpty()) {
@@ -152,7 +152,7 @@ public class ProductController {
     }
 
     // Hiển thị những sản phẩm tương tự theo categoryItem_product
-    @GetMapping("/{id}/similar-products")
+    @GetMapping("product/{id}/similar-products")
     public ResponseEntity<ResponObject> findSimilarProducts(@PathVariable("id") Integer id) {
         if (productService.existsById(id)) {
             List<Product> similarProducts = productService.findSimilarProducts(id);
@@ -164,7 +164,7 @@ public class ProductController {
     }
 
     //Admin
-    @GetMapping("/getAll")
+    @GetMapping("product/getAll")
     public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
                                                @RequestParam("sizePage") Optional<Integer> sizePage,
                                                @RequestParam("sort") Optional<String> sort,
@@ -179,7 +179,7 @@ public class ProductController {
 
     }
 
-    @PutMapping("/adminupdate/{id}")
+    @PutMapping("auth/product/adminupdate/{id}")
     public ResponseEntity<ResponObject> AdminProduct(@PathVariable("id") Integer id) {
         Product product = productService.findById(id);
         product.setStatus(2);
@@ -188,13 +188,13 @@ public class ProductController {
                 HttpStatus.CREATED);
     }
 
-    @PutMapping("/adminupdatestatus/{id}")
+    @PutMapping("auth/product/adminupdatestatus/{id}")
     public ResponseEntity<ResponObject> AdminUpdateProduct(@PathVariable("id") Integer id, @RequestParam("status") Integer status) {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Cập nhật thành công", productService.adminUpdateStatus(id, status)),
                 HttpStatus.CREATED);
     }
 
-    @GetMapping("/search")
+    @GetMapping("product/search")
     public ResponseEntity<ResponObject> search(@RequestParam("key") Optional<String> key, @RequestParam("keyword") Optional<String> valueKeyword,
                                                @RequestParam("category") Optional<Integer> idCategoryItem, @RequestParam("shop") Optional<Integer> idshop, @RequestParam("offset") Optional<Integer> offSet,
                                                @RequestParam("sizePage") Optional<Integer> sizePage,
@@ -203,7 +203,7 @@ public class ProductController {
                 HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/shop")
+    @GetMapping("product/{id}/shop")
     public ResponseEntity<ResponObject> getShopByProduct(@PathVariable("id") Integer id) {
         Map<Integer, Object[]> listProducts = new HashMap<>();
         Shop shop = null;
@@ -235,7 +235,7 @@ public class ProductController {
 
     }
 
-    @GetMapping("/exportProductsToExcel")
+    @GetMapping("auth/product/exportProductsToExcel")
     public ResponseEntity<byte[]> exportProductsToExcel() {
         List<Product> productList = productService.findAll(); // Thay thế bằng phương thức lấy danh sách sản phẩm từ dịch vụ của bạn
 
@@ -278,7 +278,7 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/importProductsFromExcel")
+    @PostMapping("auth/product/importProductsFromExcel")
     public String importProductsFromExcel(@RequestParam("file") MultipartFile file) {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0); // Lấy sheet đầu tiên (index 0)
@@ -303,7 +303,7 @@ public class ProductController {
                 product.setCategoryItem_product(categoryItem);
                 Shop shop=shopService.findById((int) currentRow.getCell(7).getNumericCellValue());
                 product.setShop(shop);
-                // Tiếp tục đặt các giá trị cho các trường khác tương ứng với cột trong file Excel
+
                 productService.createProduct(product);
             }
 

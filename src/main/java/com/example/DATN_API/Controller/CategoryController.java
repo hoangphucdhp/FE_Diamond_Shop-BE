@@ -16,13 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/")
 @CrossOrigin()
 public class CategoryController {
     @Autowired
@@ -30,7 +31,7 @@ public class CategoryController {
     @Autowired
     IStorageSerivce iStorageSerivce;
 
-    @GetMapping()
+    @GetMapping("category")
     public ResponseEntity<Page<Category>> getAll(@RequestParam("offset") Optional<Integer> offSet,
                                                  @RequestParam("sizePage") Optional<Integer> sizePage,
                                                  @RequestParam("sort") Optional<String> sort,
@@ -44,14 +45,14 @@ public class CategoryController {
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("category/{id}")
     public ResponseEntity<Category> findById(@PathVariable Integer id) {
         Category categories = CategoryService.findByIdCategory(id);
         categories.removeDuplicateCategoryItems();
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
-    @PostMapping()
+    @PostMapping("auth/category")
     public ResponseEntity<ResponObject> create(@RequestParam("id_account") Integer idAccount, @RequestParam("image") MultipartFile image, @RequestParam("type_category") String type_category, @RequestParam("create_date") Date create_date) {
         String name = iStorageSerivce.storeFile(image);
         Account newAccount = CategoryService.findAccountById(idAccount);
@@ -70,10 +71,10 @@ public class CategoryController {
             return new ResponseEntity<>(new ResponObject("error", "Tên loại sản phẩm đã tồn tại!", null),
                     HttpStatus.CREATED);
         }
-
     }
 
-    @PutMapping("{id}")
+    @PutMapping("auth/category/{id}")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> update(@PathVariable("id") Integer id, @RequestParam("type_category") Optional<String> type_category, @RequestParam("image") Optional<MultipartFile> image) {
         MultipartFile imagesave = image.orElse(null);
         String type_categorysave = type_category.orElse("");
@@ -108,7 +109,8 @@ public class CategoryController {
 
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("auth/category/{id}")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> delete(@PathVariable Integer id) {
         if (CategoryService.deleteCategory(id)) {
             return new ResponseEntity<>(new ResponObject("success", "Xóa thành công.", id), HttpStatus.OK);
@@ -118,12 +120,12 @@ public class CategoryController {
 
 
     //CategoryItem
-    @GetMapping("/categoryItem")
+    @GetMapping("category/categoryItem")
     public ResponseEntity<List<CategoryItem>> getAllCategoryItem() {
         return new ResponseEntity<>(CategoryService.findAllCategoryItem(), HttpStatus.OK);
     }
 
-    @GetMapping("/categoryItem/{id}")
+    @GetMapping("category/categoryItem/{id}")
     public ResponseEntity<CategoryItem> findByIdCategoryItem(@PathVariable Integer id) {
         if (CategoryService.existsByIdCategoryItem(id)) {
             return new ResponseEntity<>(CategoryService.findByIdCategoryItem(id), HttpStatus.OK);
@@ -131,7 +133,8 @@ public class CategoryController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/categoryItem")
+    @PostMapping("auth/categoryItem")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> createCategoryItem(@RequestParam("type_categoryItem") String typeCategoryItem, @RequestParam("category") Integer idCategory, @RequestParam("create_date") Date create_date, @RequestParam("idAccount") Integer idAccount) {
         Category categorysave = CategoryService.findByIdCategory(idCategory);
         Account accountsave = CategoryService.findAccountById(idAccount);
@@ -153,7 +156,8 @@ public class CategoryController {
 
     }
 
-    @PutMapping("/categoryItem/{id}")
+    @PutMapping("auth/categoryItem/{id}")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> updateCategoryItem(@PathVariable("id") Integer id, @RequestParam("type_categoryItem") Optional<String> typeCategoryItem, @RequestParam("category") Optional<Integer> idCategory, @RequestParam("idAccount") Integer idAccount) {
         String typeCategoryItemsave = typeCategoryItem.orElse("");
         int idCategorysave = idCategory.orElse(0);
@@ -186,13 +190,13 @@ public class CategoryController {
                 HttpStatus.OK);
     }
 
-    @DeleteMapping("/categoryItem/{id}")
+    @DeleteMapping("auth/categoryItem/{id}")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> deleteCategoryItem(@PathVariable("id") Integer id) {
         if (CategoryService.deleteCategoryItem(id)) {
             return new ResponseEntity<>(new ResponObject("success", "Xóa thành công.", id), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponObject("error", "Có lỗi xảy ra.", id), HttpStatus.OK);
-
     }
 
 }
