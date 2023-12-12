@@ -46,8 +46,8 @@ public class OrderService {
         return orderReponsetory.findOrderByAccount(id,pageable);
     }
 
-    public Page<Order> findOrderByShop(int id){
-        Pageable pageable = PageRequest.of(0,20,Sort.by("create_date"));
-        return orderReponsetory.findOrderByShop(id,pageable);
-    }
+//    public Page<Order> findOrderByShop(int id){
+//        Pageable pageable = PageRequest.of(0,20,Sort.by("create_date"));
+//        return orderReponsetory.findOrderByShop(id,pageable);
+//    }
 }

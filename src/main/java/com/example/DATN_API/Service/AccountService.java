@@ -41,6 +41,9 @@ public class AccountService {
     public Account findAccountByShopName(String id) {
         return accountReponsitory.findAccountByShopName(id);
     }
+    public Account findAccountByidProduct(int id) {
+        return accountReponsitory.findAccountByidProduct(id);
+    }
 
     public List<Account> findAll() {
         return accountReponsitory.findAll();

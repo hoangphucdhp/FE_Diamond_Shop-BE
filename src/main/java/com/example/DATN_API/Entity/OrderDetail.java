@@ -17,7 +17,7 @@ public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-//
+
     @ManyToOne
     @JoinColumn(name = "id_order")
     @JsonBackReference
@@ -25,8 +25,12 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "id_product")
-    @JsonIgnore
     private Product productOrder;
 
     private int quantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_shop")
+    @JsonIgnore
+    private Shop shopOrder;
 }

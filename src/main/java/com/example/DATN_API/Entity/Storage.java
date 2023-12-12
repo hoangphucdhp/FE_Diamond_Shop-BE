@@ -27,4 +27,5 @@ public class Storage {
     private Product product;
 
     private Date create_date;
+    private String type;
 }

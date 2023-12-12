@@ -2,6 +2,7 @@ package com.example.DATN_API.Service;
 
 import com.example.DATN_API.Entity.*;
 import com.example.DATN_API.Reponsitories.AccountReponsitory;
+import com.example.DATN_API.Reponsitories.InfoAccountReponsitory;
 import com.example.DATN_API.Reponsitories.RoleAccountResponsitory;
 import com.example.DATN_API.Security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ import java.util.List;
 public class AuthenticationService {
     private final AccountReponsitory accountReponsitory;
     private final RoleAccountResponsitory roleUserReponsitory;
-
+    private final InfoAccountReponsitory infoAccountReponsitory;
     private final PasswordEncoder passwordEncoder;
 
     private final JwtService jwtService;
@@ -40,17 +41,22 @@ public class AuthenticationService {
 
         List<RoleAccount> roleUsers = new ArrayList<>();
         roleUsers.add(roleAccount);
-
+        InfoAccount infoAccount = new InfoAccount();
         var user = Account.builder()
                 .us(request.getUsername())
-                .pw(passwordEncoder.encode(request.getPassword()))
+                .pw(passwordEncoder().encode(request.getPassword()))
                 .roles(roleUsers)
                 .create_date(new Date())
                 .status(true)
+                .provider("myweb")
                 .build();
         roleAccount.setAccount_role(user);
+        infoAccount.setEmail(request.getEmail());
+        infoAccount.setInfaccount(user);
+
         accountReponsitory.save(user);
         roleUserReponsitory.save(roleAccount);
+        infoAccountReponsitory.save(infoAccount);
         var jwtToken = jwtService.generateToken(user);
 
         return AuthenticationResponse.builder()
@@ -58,8 +64,49 @@ public class AuthenticationService {
                 .build();
     }
 
+    public AuthenticationResponse registerGoogle(String email, String displayName) {
+        if (accountService.findByUsername(email).isPresent() && accountService.findByUsername(email).get().getProvider().equals("myweb")) {
+            return null;
+        } else if (accountService.findByEmail(email) != null && accountService.findByEmail(email).getProvider().equals("myweb")) {
+            return null;
+        } else if (!accountService.findByUsername(email).isPresent() && accountService.findByEmail(email) == null) {
+            Role role = new Role();
+            role.setId(3);
+            RoleAccount roleAccount = new RoleAccount();
+            roleAccount.setRole(role);
+            List<RoleAccount> roleUsers = new ArrayList<>();
+            roleUsers.add(roleAccount);
+            InfoAccount infoAccount = new InfoAccount();
+            var user = Account.builder()
+                    .us(email)
+                    .pw(passwordEncoder().encode("googlePassword"))
+                    .roles(roleUsers)
+                    .create_date(new Date())
+                    .status(true)
+                    .provider("google")
+                    .build();
+            roleAccount.setAccount_role(user);
+            infoAccount.setEmail(email);
+            infoAccount.setFullname(displayName);
+            infoAccount.setInfaccount(user);
+
+            accountReponsitory.save(user);
+            roleUserReponsitory.save(roleAccount);
+            infoAccountReponsitory.save(infoAccount);
+            var jwtToken = jwtService.generateToken(user);
+
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        } else {
+            var jwtToken = jwtService.generateToken(accountService.findByUsername(email).get());
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        }
+    }
+
     public AuthenticationResponse authenticate(AuthenticationRqeuest request) {
-        System.out.println("voo");
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -70,14 +117,12 @@ public class AuthenticationService {
         var user = accountReponsitory.findByUsername(request.getUsername()).orElseThrow();
         System.out.println(user.getUsername());
         if (user == null) {
-            System.out.println("null");
             return AuthenticationResponse.builder()
                     .status(false)
                     .token("")
                     .build();
         }
         var jwtToken = jwtService.generateToken(user);
-        System.out.println(jwtToken);
         return AuthenticationResponse.builder()
                 .status(true)
                 .token(jwtToken)

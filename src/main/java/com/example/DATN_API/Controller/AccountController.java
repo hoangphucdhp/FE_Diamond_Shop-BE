@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -32,7 +33,7 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/")
-@CrossOrigin
+@CrossOrigin("*")
 public class AccountController {
 
     @Autowired
@@ -69,7 +70,7 @@ public class AccountController {
     }
 //    private final AuthenticationService authenticationService;
 
-//    @GetMapping("/account/getAll1")
+    //    @GetMapping("/account/getAll1")
 //    public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet,
 //                                               @RequestParam("sizePage") Optional<Integer> sizePage,
 //                                               @RequestParam("sort") Optional<String> sort) {
@@ -460,7 +461,7 @@ public class AccountController {
 
     @GetMapping("account/findaccountbyshopname/{id}")
     public ResponseEntity<ResponObject> findAccountbyShopName(@PathVariable("id") String id) {
-        Account account=accountService.findAccountByShopName(id);
+        Account account = accountService.findAccountByShopName(id);
         return new ResponseEntity<>(new ResponObject("success", "Tìm thành công.", account), HttpStatus.OK);
     }
 
@@ -579,6 +580,31 @@ public class AccountController {
 //                "1","delete account successfully",accountSave
 //        ));
 //    }
+
+    @GetMapping("auth/sendEmail/{email}")
+    public ResponseEntity<ResponObject> sendEmail(@PathVariable("email") String email, @RequestParam("content") String content) {
+        try {
+            MailInformation mail = new MailInformation();
+            mail.setTo(email);
+            mail.setSubject("THÔNG BÁO");
+            mail.setBody("<html><body>" + "<p>Xin chào " + email + ",</p>" + "<p>" + content + ".</p>" + "<p>Bạn có thắc mắc? Liên hệ chúng tôi tại đây khuong8177@gmail.com.</p>" + "</body></html>");
+
+            //mail.setBody(content);
+            mailServiceImplement.send(mail);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", ""), HttpStatus.OK);
+    }
+
+    @GetMapping("auth/getAccountbyIdShop/{id}")
+    public ResponseEntity<ResponObject> getAccountbyidShop(@PathVariable("id") Integer id) {
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", accountService.findAccountByIdShop(id)), HttpStatus.OK);
+    }
+    @GetMapping("auth/getAccountbyIdProduct/{id}")
+    public ResponseEntity<ResponObject> getAccountbyIdProduct(@PathVariable("id") Integer id) {
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", accountService.findAccountByidProduct(id)), HttpStatus.OK);
+    }
 
 
 }

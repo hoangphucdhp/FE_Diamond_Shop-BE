@@ -114,6 +114,7 @@ public class ProductController {
                                                       @RequestBody Storage storage) {
         Product newProduct = productService.findById(product);
         storage.setProduct(newProduct);
+        storage.setType("cong");
         Storage storagesave = storageService.createStorage(storage);
         return new ResponseEntity<>(new ResponObject("success", "Thêm thành công.", storagesave),
                 HttpStatus.CREATED);
@@ -124,6 +125,7 @@ public class ProductController {
                                                       @PathVariable("idProduct") Integer idProduct, @RequestBody Storage storage) {
         Product newProduct = productService.findById(idProduct);
         storage.setProduct(newProduct);
+        storage.setType("cong");
         Storage storagesave = storageService.updateStorage(id, storage);
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Storage has been added.", storagesave),
                 HttpStatus.CREATED);
@@ -182,24 +184,31 @@ public class ProductController {
     @PutMapping("auth/product/adminupdate/{id}")
     public ResponseEntity<ResponObject> AdminProduct(@PathVariable("id") Integer id) {
         Product product = productService.findById(id);
+        product.setStatus(3);
+        productService.createProduct(product);
+        return new ResponseEntity<>(new ResponObject("success", "ban product succsess", product),
+                HttpStatus.OK);
+    }
+    @GetMapping("auth/product/shutdownProduct/{id}")
+    public ResponseEntity<ResponObject> bussinessProduct(@PathVariable("id") Integer id) {
+        Product product = productService.findById(id);
         product.setStatus(2);
         productService.createProduct(product);
-        return new ResponseEntity<>(new ResponObject("SUCCESS", "ban product succsess", product),
-                HttpStatus.CREATED);
+        return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công", product),
+                HttpStatus.OK);
     }
-
     @PutMapping("auth/product/adminupdatestatus/{id}")
     public ResponseEntity<ResponObject> AdminUpdateProduct(@PathVariable("id") Integer id, @RequestParam("status") Integer status) {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Cập nhật thành công", productService.adminUpdateStatus(id, status)),
-                HttpStatus.CREATED);
+                HttpStatus.OK);
     }
 
     @GetMapping("product/search")
     public ResponseEntity<ResponObject> search(@RequestParam("key") Optional<String> key, @RequestParam("keyword") Optional<String> valueKeyword,
                                                @RequestParam("category") Optional<Integer> idCategoryItem, @RequestParam("shop") Optional<Integer> idshop, @RequestParam("offset") Optional<Integer> offSet,
                                                @RequestParam("sizePage") Optional<Integer> sizePage,
-                                               @RequestParam("sort") Optional<String> sort, @RequestParam("sortType") Optional<String> sortType, @RequestParam("isActive") Optional<String> isCheck) {
-        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBusiness(offSet, sizePage, sort, sortType, key, valueKeyword, idCategoryItem, idshop,isCheck)),
+                                               @RequestParam("sort") Optional<String> sort, @RequestParam("sortType") Optional<String> sortType,@RequestParam("status") Optional<String> status, @RequestParam("isActive") Optional<String> isCheck) {
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBusiness(offSet, sizePage, sort, sortType, key, valueKeyword, idCategoryItem, idshop,status,isCheck)),
                 HttpStatus.OK);
     }
 
@@ -237,7 +246,7 @@ public class ProductController {
 
     @GetMapping("auth/product/exportProductsToExcel")
     public ResponseEntity<byte[]> exportProductsToExcel() {
-        List<Product> productList = productService.findAll(); // Thay thế bằng phương thức lấy danh sách sản phẩm từ dịch vụ của bạn
+        List<Product> productList = productService.findAll();
 
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Products");
@@ -248,7 +257,6 @@ public class ProductController {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(columns[i]);
             }
-
 
             int rowNum = 1;
             for (Product product : productList) {
@@ -299,15 +307,13 @@ public class ProductController {
                 product.setCreate_date(new Date());
                 product.setDescription(currentRow.getCell(4).getStringCellValue());
                 product.setStatus(0);
-                CategoryItem categoryItem = categoryService.findByIdCategoryItem((int) currentRow.getCell(6).getNumericCellValue());
+                CategoryItem categoryItem = categoryService.findByIdCategoryItem((int) currentRow.getCell(6).getNumericCellValue()).get();
                 product.setCategoryItem_product(categoryItem);
                 Shop shop=shopService.findById((int) currentRow.getCell(7).getNumericCellValue());
                 product.setShop(shop);
 
                 productService.createProduct(product);
             }
-
-
             return "Import successful!";
         } catch (IOException e) {
             e.printStackTrace();

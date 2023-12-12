@@ -38,5 +38,8 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
 
     @Query("select acc from Account acc where acc.us = ?1")
     Optional<Account> findByUsername(String username);
+
+    @Query("Select a FROM Account a join Product p on a.shop.id=p.shop.id where p.id= ?1")
+    Account findAccountByidProduct(int id);
 }
 

@@ -24,6 +24,7 @@ public class AuthenticationController {
     @Autowired
     InfoAccountService infoAccountService;
     private final PasswordEncoder passwordEncoder;
+
     @PostMapping("register")
     public ResponseEntity<ResponObject> register(@RequestBody RegisterRequest request) {
         if (accountService.findByUsername(request.getUsername()).isPresent()) {
@@ -40,6 +41,19 @@ public class AuthenticationController {
         }
     }
 
+    @PostMapping("registerWithGoogle")
+    public ResponseEntity<ResponObject> registerGoogle(@RequestParam("email") String email, @RequestParam("displayName") String displayName) {
+        AuthenticationResponse au = authenticationService.registerGoogle(email, displayName);
+        if (au == null) {
+            return new ResponseEntity<>(new ResponObject("error", "Email đã được sử dụng với tài khoản của FE", ""),
+                    HttpStatus.CREATED);
+        } else {
+            AuthenticationRqeuest authenticationRqeuest = new AuthenticationRqeuest(email, "googlePassword");
+            return new ResponseEntity<>(new ResponObject("success", "Thành công", authenticationService.authenticate(authenticationRqeuest)),
+                    HttpStatus.CREATED);
+        }
+    }
+
 
 //    @PostMapping("test")
 //    public ResponseEntity<String> register1(@RequestBody RegisterRequest request) {
@@ -50,6 +64,9 @@ public class AuthenticationController {
     public ResponseEntity<ResponObject> login(@RequestBody AuthenticationRqeuest request) {
         Optional<Account> optionalAccount = accountService.findByUsername(request.getUsername());
         if (optionalAccount.isEmpty()) {
+            return new ResponseEntity<>(new ResponObject("error", "Tài khoản không tồn tại!", null), HttpStatus.CREATED);
+        }
+        if (optionalAccount.get().getProvider().equals("google")) {
             return new ResponseEntity<>(new ResponObject("error", "Tài khoản không tồn tại!", null), HttpStatus.CREATED);
         }
         Account account = optionalAccount.get();

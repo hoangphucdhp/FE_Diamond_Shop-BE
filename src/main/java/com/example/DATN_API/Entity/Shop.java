@@ -29,7 +29,7 @@ public class Shop {
 
     private String image;
     private Date create_date;
-    @OneToOne(mappedBy = "shopAddress")
+    @OneToOne(mappedBy = "shopAddress", cascade = CascadeType.ALL)
     private AddressShop addressShop;
 
     private int status;
@@ -38,6 +38,6 @@ public class Shop {
     private List<Product> products;
 
     @OneToMany(mappedBy = "shopOrder")
-    private List<Order> listOrder;
+    private List<OrderDetail> listOrder;
 
 }

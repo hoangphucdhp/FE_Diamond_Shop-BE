@@ -76,7 +76,7 @@ public class ShopService {
         return ShopReponsitory.findByID_Account(id_account);
     }
 
-    public Shop bussinessUpdateInf(int id, String shopName, String city, String district, String ward, String address, Optional<MultipartFile> image) {
+    public Shop bussinessUpdateInf(int id, String shopName, String city, String district, String ward, String address, String image) {
         Shop shop = findById(id);
         AddressShop addressShop = addressShopReponsitory.findByShop(shop);
         //Set shop
@@ -89,12 +89,7 @@ public class ShopService {
                 throw new IllegalArgumentException(errorMessage);
             }
         }
-
-        if (image.isPresent()) {
-            String name = iStorageSerivce.storeFile(image.get());
-            shop.setImage(name);
-        }
-        //Set address
+        shop.setImage(image);
         addressShop.setCity(city);
         addressShop.setDistrict(district);
         addressShop.setWard(ward);

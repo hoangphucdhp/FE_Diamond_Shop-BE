@@ -43,16 +43,15 @@ public class FileUploadController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResponObject> uploadFile(@RequestParam("images") List<MultipartFile> file,
+    public ResponseEntity<ResponObject> uploadFile(@RequestParam("images") List<String> file,
                                                    @RequestParam("idProduct") int idProduct) {
 
         Product product = productService.findById((idProduct));
-        for (MultipartFile item : file
+        for (String item : file
         ) {
-            String name = iStorageSerivce.storeFile(item);
             ImageProduct ImageProduct = new ImageProduct();
             ImageProduct.setProduct_image(product);
-            ImageProduct.setUrl(name);
+            ImageProduct.setUrl(item);
             imageProductService.createImageProduct(ImageProduct);
         }
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Image has been added.", "name"),

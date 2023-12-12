@@ -15,7 +15,7 @@ public interface OrderReponsetory extends JpaRepository<Order, Integer> {
     @Query("select o from Order o join o.accountOrder a where a.id = ?1")
     Page<Order> findOrderByAccount(int id,Pageable pageable);
 
-    @Query("select o from Order o join o.shopOrder s where s.id = ?1")
-    Page<Order> findOrderByShop(int id,Pageable pageable);
+//    @Query("select o from Order o join o.shopOrder s where s.id = ?1")
+//    Page<Order> findOrderByShop(int id,Pageable pageable);
 
 }

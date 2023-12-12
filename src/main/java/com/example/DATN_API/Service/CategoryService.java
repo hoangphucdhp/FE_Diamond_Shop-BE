@@ -107,9 +107,9 @@ public class CategoryService {
         return CategoryItemReponsitory.findAll();
     }
 
-    public CategoryItem findByIdCategoryItem(int id) {
+    public Optional<CategoryItem> findByIdCategoryItem(int id) {
         Optional<CategoryItem> Category = CategoryItemReponsitory.findById(id);
-        return Category.get();
+        return Category;
     }
 
     public CategoryItem createCategoryItem(CategoryItem Category) {
@@ -134,7 +134,7 @@ public class CategoryService {
 
     public Boolean deleteCategoryItem(int id) {
         try {
-            CategoryItem categoryItem = findByIdCategoryItem(id);
+            CategoryItem categoryItem = findByIdCategoryItem(id).get();
             if (categoryItem.getProducts().size() < 1) {
 
                 CategoryItemReponsitory.deleteById(id);

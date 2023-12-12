@@ -36,7 +36,7 @@ public class Account implements UserDetails {
     @CreatedDate
     private Date create_date;
     private boolean status;
-
+    private String provider;
     @OneToMany(mappedBy = "account_role",fetch = FetchType.EAGER)
     private List<RoleAccount> roles;
 

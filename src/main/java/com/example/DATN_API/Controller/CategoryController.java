@@ -53,11 +53,10 @@ public class CategoryController {
     }
 
     @PostMapping("auth/category")
-    public ResponseEntity<ResponObject> create(@RequestParam("id_account") Integer idAccount, @RequestParam("image") MultipartFile image, @RequestParam("type_category") String type_category, @RequestParam("create_date") Date create_date) {
-        String name = iStorageSerivce.storeFile(image);
+    public ResponseEntity<ResponObject> create(@RequestParam("id_account") Integer idAccount, @RequestParam("image") String image, @RequestParam("type_category") String type_category, @RequestParam("create_date") Date create_date) {
         Account newAccount = CategoryService.findAccountById(idAccount);
         Category category = new Category();
-        category.setImage(name);
+        category.setImage(image);
         category.setAccountCreateCategory(newAccount);
         category.setStatus(true);
         category.setType_category(type_category);
@@ -75,35 +74,18 @@ public class CategoryController {
 
     @PutMapping("auth/category/{id}")
     @PreAuthorize("hasRole('ROLE_Admin')")
-    public ResponseEntity<ResponObject> update(@PathVariable("id") Integer id, @RequestParam("type_category") Optional<String> type_category, @RequestParam("image") Optional<MultipartFile> image) {
-        MultipartFile imagesave = image.orElse(null);
+    public ResponseEntity<ResponObject> update(@PathVariable("id") Integer id, @RequestParam("type_category") Optional<String> type_category, @RequestParam("image") Optional<String> image) {
+        String imagesave = image.orElse("");
         String type_categorysave = type_category.orElse("");
         Category categoryold = CategoryService.findByIdCategory(id);
 
-        if (imagesave == null && type_categorysave.equals("")) {
-            CategoryService.updateCategory(categoryold);
-        } else if (imagesave == null && !type_categorysave.equals("") ) {
             if (CategoryService.findByTypeCategory(type_categorysave) != null&& !type_categorysave.equals(categoryold.getType_category())) {
                 return new ResponseEntity<>(new ResponObject("error", "Tên loại sản phẩm đã tồn tại!", null),
                         HttpStatus.OK);
             } else {
                 categoryold.setType_category(type_categorysave);
+                categoryold.setImage(imagesave);
                 CategoryService.updateCategory(categoryold);
-            }
-        } else if (imagesave != null && type_categorysave.equals("")) {
-            String name = iStorageSerivce.storeFile(imagesave);
-            categoryold.setImage(name);
-            CategoryService.updateCategory(categoryold);
-        } else {
-            if (CategoryService.findByTypeCategory(type_categorysave) != null&&!type_categorysave.equals(categoryold.getType_category())) {
-                return new ResponseEntity<>(new ResponObject("error", "Tên loại sản phẩm đã tồn tại!", null),
-                        HttpStatus.OK);
-            } else {
-                String name = iStorageSerivce.storeFile(imagesave);
-                categoryold.setImage(name);
-                categoryold.setType_category(categoryold.getType_category());
-                CategoryService.updateCategory(categoryold);
-            }
         }
         return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", categoryold), HttpStatus.OK);
 
@@ -128,7 +110,7 @@ public class CategoryController {
     @GetMapping("category/categoryItem/{id}")
     public ResponseEntity<CategoryItem> findByIdCategoryItem(@PathVariable Integer id) {
         if (CategoryService.existsByIdCategoryItem(id)) {
-            return new ResponseEntity<>(CategoryService.findByIdCategoryItem(id), HttpStatus.OK);
+            return new ResponseEntity<>(CategoryService.findByIdCategoryItem(id).get(), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -163,7 +145,7 @@ public class CategoryController {
         int idCategorysave = idCategory.orElse(0);
         Category categorysave = CategoryService.findByIdCategory(idCategorysave);
         Account accountsave = CategoryService.findAccountById(idAccount);
-        CategoryItem categoryItemold = CategoryService.findByIdCategoryItem(id);
+        CategoryItem categoryItemold = CategoryService.findByIdCategoryItem(id).get();
         categoryItemold.setAccount(accountsave);
         if (typeCategoryItemsave.equals("") && idCategorysave != 0) {
             categoryItemold.setCategory(categorysave);

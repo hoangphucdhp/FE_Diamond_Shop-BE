@@ -43,7 +43,6 @@ public class Product {
     @OneToOne(mappedBy = "product_like")
     private LikeProduct likeProduct;
 
-
     @OneToMany(mappedBy = "productOrder")
     @JsonIgnore
     private List<OrderDetail> listOrderDetail;

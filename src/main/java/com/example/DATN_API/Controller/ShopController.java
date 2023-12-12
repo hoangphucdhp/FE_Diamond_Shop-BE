@@ -40,7 +40,7 @@ public class ShopController {
                 "SUCCESS", "find shop by product", accountService.findAll()));
     }
 
-    @GetMapping("/findByProduct/{id}")
+    @GetMapping("shop/findByProduct/{id}")
     public ResponseEntity<ResponObject> findByProduct(@PathVariable("id") int idProduct) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "find shop by product", shopService.findShopByProduct(idProduct)));
@@ -101,13 +101,23 @@ public class ShopController {
                                                            @RequestParam("district") String district,
                                                            @RequestParam("ward") String ward,
                                                            @RequestParam("address") String address,
-                                                           @RequestParam("image") Optional<MultipartFile> image) {
+                                                           @RequestParam("image") String image) {
         try {
             Shop shop = shopService.bussinessUpdateInf(id, shop_name, city, district, ward, address, image);
             return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", shop), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             String errorMessage = e.getMessage();
             return new ResponseEntity<>(new ResponObject("error", errorMessage, null), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/auth/adminDeleteShop/{id}")
+    public ResponseEntity<ResponObject> adminDeleteShop(@PathVariable("id") Integer id) {
+        try {
+            shopService.deleteShop(id);
+            return new ResponseEntity<>(new ResponObject("success", "Thành công", null), HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(new ResponObject("error", "Thất bại", null), HttpStatus.OK);
         }
     }
 }
