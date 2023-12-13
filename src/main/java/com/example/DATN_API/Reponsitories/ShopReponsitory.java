@@ -5,10 +5,12 @@ import com.example.DATN_API.Entity.Account;
 import com.example.DATN_API.Entity.Shop;
 
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -40,5 +42,8 @@ public interface ShopReponsitory extends JpaRepository<Shop, Integer> {
     @Query("select s from Shop s join s.products p where p.status = ?1 and s.shop_name like ?2")
     public Page<Shop> findShopSearchByName(int status, String name, Pageable pageable);
 
-
+    @Transactional
+    @Modifying
+    @Query("UPDATE Shop s SET s.status = :status WHERE s.id = :id")
+    void BanShop(int id, int status);
 }

@@ -79,9 +79,7 @@ public class OrderController {
             item.setOrders(orderSave);
             Shop shopFind = shopService.findShopByProduct(item.getProductOrder().getId());
             shop.setId(shopFind.getId());
-            System.out.println(orderSave.getId());
             item.setShopOrder(shop);
-            System.out.println(item.getShopOrder().getShop_name());
             orderDetailService.save(item);
         });
 

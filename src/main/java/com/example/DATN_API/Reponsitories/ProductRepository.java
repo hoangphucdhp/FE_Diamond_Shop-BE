@@ -4,10 +4,12 @@ import com.example.DATN_API.Entity.CategoryItem;
 import com.example.DATN_API.Entity.Product;
 import com.example.DATN_API.Entity.Shop;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -80,4 +82,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("select pro from Product pro JOIN pro.listStorage s where (:id = '' or pro.product_name like %:id%)  and (:categoryItem IS NULL OR pro.categoryItem_product = :categoryItem) and pro.shop=:shop and (:status = '' or cast(pro.status as STRING )  = :status) GROUP BY pro HAVING COALESCE(SUM(CASE WHEN s.type = 'cong' THEN s.quantity ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN s.type = 'tru' THEN s.quantity ELSE 0 END), 0) = 0")
     Page<Product> searchProductByNameAndCategoryZeroQuantity(@Param("id") String id, @Param("categoryItem") CategoryItem categoryItem, @Param("shop") Shop shop, @Param("status") String status, Pageable pageable);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Product s SET s.status = :status WHERE s.id = :id")
+    void BanProduct(int id, int status);
 }

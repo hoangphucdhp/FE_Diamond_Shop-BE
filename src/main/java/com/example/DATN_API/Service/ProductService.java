@@ -288,5 +288,8 @@ public class ProductService {
         return null;
     }
 
+    public void BanProduct(int id, int status) {
+        productRepository.BanProduct(id, status);
+    }
 
 }

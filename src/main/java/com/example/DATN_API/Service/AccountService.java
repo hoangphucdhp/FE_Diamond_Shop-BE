@@ -30,7 +30,13 @@ public class AccountService {
     RoleAccountReponsitory roleAccountReponsitory;
     @Autowired
     @Lazy
+    private ShopService shopService;
+    @Autowired
+    @Lazy
     private AuthenticationService authenticationService;
+    @Autowired
+    @Lazy
+    private ProductService productService;
 
     public Optional<Account> findByUsername(String username) {
         return accountReponsitory.findByUsername(username);
@@ -162,6 +168,19 @@ public class AccountService {
         try {
             Account account = findById(id);
             account.setStatus(status);
+            System.out.println(status);
+            //Cấm Shop và Sản phẩm
+            if (status) {
+                account.getShop().getProducts().stream().forEach(item -> {
+                    productService.BanProduct(item.getId(), 0);
+                });
+                shopService.BanShop(account.getShop().getId(), 0);
+            } else {
+                account.getShop().getProducts().stream().forEach(item -> {
+                    productService.BanProduct(item.getId(), 3);
+                });
+                shopService.BanShop(account.getShop().getId(), 2);
+            }
             return accountReponsitory.save(account);
         } catch (Exception e) {
             e.printStackTrace();

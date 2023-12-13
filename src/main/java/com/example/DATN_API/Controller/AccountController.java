@@ -449,7 +449,12 @@ public class AccountController {
     @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> AdminUpdate(@PathVariable("id") Integer id, @RequestParam("status") Boolean status) {
         Account newaccount = accountService.AdminUpdate(id, status);
-        return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", newaccount), HttpStatus.OK);
+        if(newaccount!=null){
+            return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", newaccount), HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(new ResponObject("error", "Thất bại.", newaccount), HttpStatus.OK);
+
+        }
     }
 
     @GetMapping("account/findaccountbyshopname/{id}")

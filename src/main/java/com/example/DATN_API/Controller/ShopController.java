@@ -2,10 +2,7 @@ package com.example.DATN_API.Controller;
 
 
 import com.example.DATN_API.Entity.*;
-import com.example.DATN_API.Service.AccountService;
-import com.example.DATN_API.Service.OrderService;
-import com.example.DATN_API.Service.RoleAccountService;
-import com.example.DATN_API.Service.ShopService;
+import com.example.DATN_API.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,6 +30,8 @@ public class ShopController {
     AccountService accountService;
     @Autowired
     RoleAccountService roleAccService;
+    @Autowired
+    ProductService productService;
 
     @GetMapping("/findAll")
     public ResponseEntity<ResponObject> findAll() {
@@ -80,8 +79,18 @@ public class ShopController {
     @PutMapping("auth/admin/update")
     @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> updatestatusAdmin(@RequestParam("id") Integer id,
-                                                          @RequestParam("status") Integer status) {
+                                                          @RequestParam("status") Integer status, @RequestParam("isCheck") String isCheck) {
         Shop shop = shopService.findById(id);
+        if (status == 2) {
+            shop.getProducts().stream().forEach(item -> {
+                productService.BanProduct(item.getId(), 3);
+            });
+        }
+        if (status == 1 && isCheck.equals("model")) {
+            shop.getProducts().stream().forEach(item -> {
+                productService.BanProduct(item.getId(), 0);
+            });
+        }
         shop.setStatus(status);
         RoleAccount roleAcc = new RoleAccount();
         Role role = new Role();
@@ -92,6 +101,7 @@ public class ShopController {
         roleAccService.createRoleAcc(roleAcc);
         Shop shopnew = shopService.updateShop(shop);
         return new ResponseEntity<>(new ResponObject("SUCCESS", "shop has been updated.", shopnew), HttpStatus.OK);
+
     }
 
 
@@ -116,7 +126,7 @@ public class ShopController {
         try {
             shopService.deleteShop(id);
             return new ResponseEntity<>(new ResponObject("success", "Thành công", null), HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(new ResponObject("error", "Thất bại", null), HttpStatus.OK);
         }
     }
