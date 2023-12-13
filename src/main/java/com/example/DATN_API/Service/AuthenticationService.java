@@ -26,7 +26,7 @@ public class AuthenticationService {
     private final AccountReponsitory accountReponsitory;
     private final RoleAccountResponsitory roleUserReponsitory;
     private final InfoAccountReponsitory infoAccountReponsitory;
-    private final PasswordEncoder passwordEncoder;
+
 
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -115,7 +115,7 @@ public class AuthenticationService {
         );
 
         var user = accountReponsitory.findByUsername(request.getUsername()).orElseThrow();
-        System.out.println(user.getUsername());
+
         if (user == null) {
             return AuthenticationResponse.builder()
                     .status(false)

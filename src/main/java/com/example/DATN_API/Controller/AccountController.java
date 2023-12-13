@@ -1,34 +1,20 @@
 package com.example.DATN_API.Controller;
 
 import com.example.DATN_API.Entity.*;
-
-
 import com.example.DATN_API.Service.*;
-//import com.example.DATN_API.Service.AuthService;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.access.prepost.PreAuthorize;
-
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @RestController
@@ -62,6 +48,9 @@ public class AccountController {
 
     @Autowired
     IStorageSerivce iStorageSerivce;
+
+    @Autowired
+    AuthenticationService authenticationService;
 
     @GetMapping("auth/account/getAll")
     public ResponseEntity<ResponObject> getAll(@RequestParam("offset") Optional<Integer> offSet, @RequestParam("sizePage") Optional<Integer> sizePage, @RequestParam("key") Optional<String> keyfind, @RequestParam("keyword") Optional<String> keyword, @RequestParam("sort") Optional<String> sort, @RequestParam("sortType") Optional<String> sortType, @RequestParam("shoporaccount") Optional<String> shoporaccount) {
@@ -258,46 +247,45 @@ public class AccountController {
             InfoAccount inCheck1 = infoAccountService.findByPhone(inAccount.getPhone());
             InfoAccount inCheck2 = infoAccountService.findByIdCard(inAccount.getId_card());
             if (inAccount.getPhone().length() != 10) {
-                return new ResponseEntity<>(new ResponObject("error", "Số điện thoại không hợp lệ!", null), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("error", "Số điện thoại không hợp lệ!", null), HttpStatus.CREATED);
             } else if (!inAccount.getPhone().substring(0, 1).equals("0")) {
-                return new ResponseEntity<>(new ResponObject("error", "Số điện thoại không hợp lệ!", null), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("error", "Số điện thoại không hợp lệ!", null), HttpStatus.CREATED);
             } else if (inCheck1 != null && inCheck1.getInfaccount().getId() != account.getId()) {
-                return new ResponseEntity<>(new ResponObject("error", "Số điện thoại đã được sử dụng cho một tài khoản khác!", null), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("error", "Số điện thoại đã được sử dụng cho một tài khoản khác!", null), HttpStatus.CREATED);
             } else if (inAccount.getId_card().length() != 12) {
-                return new ResponseEntity<>(new ResponObject("error", "Số CCCD không hợp lệ!", null), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("error", "Số CCCD không hợp lệ!", null), HttpStatus.CREATED);
             } else if (inCheck2 != null && inCheck2.getInfaccount().getId() != account.getId()) {
-                return new ResponseEntity<>(new ResponObject("error", "Số CCCD đã được sử dụng cho một tài khoản khác!", null), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("error", "Số CCCD đã được sử dụng cho một tài khoản khác!", null), HttpStatus.CREATED);
             } else {
                 inAccounts.setEmail(inAccount.getEmail());
                 inAccounts.setPhone(inAccount.getPhone());
                 inAccounts.setGender(inAccount.isGender());
                 inAccounts.setFullname(inAccount.getFullname());
                 inAccounts.setId_card(inAccount.getId_card());
+                inAccounts.setImage(inAccount.getImage());
                 infoAccountService.createProfile(inAccounts);
-                return new ResponseEntity<>(new ResponObject("success", "Cập nhật thông tin thành công!", inAccounts), HttpStatus.CREATED);
-
+                return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công!", inAccounts), HttpStatus.CREATED);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<>(new ResponObject("error", "Cập nhật thông tin thất bại!", null), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponObject("error", "Cập nhật thông tin thất bại!", null), HttpStatus.CREATED);
     }
 
     @PostMapping("auth/account/changepass/{username}")
     public ResponseEntity<ResponObject> changePass(@PathVariable("username") String username, @RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword, @RequestParam("reNewPassword") String reNewPassword) {
-        PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         try {
             Account account = accountService.findByUsername(username).get();
-            if (!passwordEncoder.matches(oldPassword, account.getPassword())) {
-                return new ResponseEntity<>(new ResponObject("error", "Mật khẩu cũ không khớp!", null), HttpStatus.OK);
+            if (!authenticationService.passwordEncoder().matches(oldPassword, account.getPassword())) {
+                return new ResponseEntity<>(new ResponObject("error", "Mật khẩu cũ không khớp!", null), HttpStatus.CREATED);
             } else if (newPassword.length() < 8) {
-                return new ResponseEntity<>(new ResponObject("error", "Độ dài tối thiểu của mật khẩu là 8 ký tự!", null), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("error", "Độ dài tối thiểu của mật khẩu là 8 ký tự!", null), HttpStatus.CREATED);
             } else if (!newPassword.equals(reNewPassword)) {
-                return new ResponseEntity<>(new ResponObject("error", "Mật khẩu mới không khớp!", null), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("error", "Mật khẩu mới không khớp!", null), HttpStatus.CREATED);
             } else {
                 account.setPw(newPassword);
                 accountService.changePass(account);
-                return new ResponseEntity<>(new ResponObject("success", "Đổi mật khẩu thành công!", account), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("success", "Đổi mật khẩu thành công!", account), HttpStatus.CREATED);
 
             }
         } catch (Exception e) {
@@ -307,33 +295,38 @@ public class AccountController {
     }
 
     @PostMapping("auth/account/saleregis/{username}/{shop}")
-    public ResponseEntity<ResponObject> saleRegis(@PathVariable("username") String username, @PathVariable("shop") String shop_name, @RequestBody AddressShop address) {
+    public ResponseEntity<ResponObject> saleRegis(@PathVariable("username") String username, @PathVariable("shop") String shop_name, @RequestParam("image") String image, @RequestBody AddressShop address) {
         LocalDate localDate = LocalDate.now();
         Date date = java.sql.Date.valueOf(localDate);
         try {
-            Account accounts = accountService.findByUsername(username).get();
-            Shop shops = shopService.existByAccount(accounts.getId());
-            if (shops != null && shops.getStatus() == 0) {
-                return new ResponseEntity<>(new ResponObject("error", "Bạn đã gửi đăng ký kênh bánh hàng, vui lòng chờ ADMIN xét duyệt!", null), HttpStatus.OK);
+            Shop shopFind = shopService.findByShopName(shop_name);
+            if (shopFind != null) {
+                return new ResponseEntity<>(new ResponObject("error", "Tên cửa hàng đã tồn tại!", null), HttpStatus.CREATED);
             } else {
-
-                Shop shop = new Shop();
-                // Create shop
-                Account account = accountService.findByUsername(username).get();
-                shop.setAccountShop(account);
-                shop.setShop_name(shop_name);
-                shop.setCreate_date(date);
-                shop.setStatus(0);
-                shopService.createShop(shop);
-                // Create shop address
-                address.setShopAddress(shop);
-                addressService.createAddressShop(address);
-                return new ResponseEntity<>(new ResponObject("success", "Gửi yêu cầu thành công, vui lòng chờ ADMIN xét duyệt!", shop), HttpStatus.CREATED);
+                Account accounts = accountService.findByUsername(username).get();
+                Shop shops = shopService.existByAccount(accounts.getId());
+                if (shops != null && shops.getStatus() == 0) {
+                    return new ResponseEntity<>(new ResponObject("error", "Bạn đã gửi đăng ký kênh bánh hàng, vui lòng chờ ADMIN xét duyệt!", null), HttpStatus.CREATED);
+                } else {
+                    Shop shop = new Shop();
+                    // Create shop
+                    Account account = accountService.findByUsername(username).get();
+                    shop.setAccountShop(account);
+                    shop.setShop_name(shop_name);
+                    shop.setCreate_date(date);
+                    shop.setStatus(0);
+                    shop.setImage(image);
+                    Shop shopSave = shopService.createShop(shop);
+                    // Create shop address
+                    address.setShopAddress(shopSave);
+                    addressService.createAddressShop(address);
+                    return new ResponseEntity<>(new ResponObject("success", "Gửi yêu cầu thành công, vui lòng chờ ADMIN xét duyệt!", shopSave), HttpStatus.CREATED);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<>(new ResponObject("error", "Đăng ký kênh bán hàng thất bại!", null), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponObject("error", "Đăng ký kênh bán hàng thất bại!", null), HttpStatus.CREATED);
     }
 
     @PostMapping("auth/account/createAddress/{username}")
@@ -601,6 +594,7 @@ public class AccountController {
     public ResponseEntity<ResponObject> getAccountbyidShop(@PathVariable("id") Integer id) {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", accountService.findAccountByIdShop(id)), HttpStatus.OK);
     }
+
     @GetMapping("auth/getAccountbyIdProduct/{id}")
     public ResponseEntity<ResponObject> getAccountbyIdProduct(@PathVariable("id") Integer id) {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", accountService.findAccountByidProduct(id)), HttpStatus.OK);

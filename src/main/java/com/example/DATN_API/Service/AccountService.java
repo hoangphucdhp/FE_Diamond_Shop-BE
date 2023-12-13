@@ -7,6 +7,7 @@ import com.example.DATN_API.Reponsitories.RoleAccountReponsitory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,10 +26,11 @@ public class AccountService {
 
     @Autowired
     AccountReponsitory accountReponsitory;
-
     @Autowired
     RoleAccountReponsitory roleAccountReponsitory;
-
+    @Autowired
+    @Lazy
+    private AuthenticationService authenticationService;
 
     public Optional<Account> findByUsername(String username) {
         return accountReponsitory.findByUsername(username);
@@ -41,6 +43,7 @@ public class AccountService {
     public Account findAccountByShopName(String id) {
         return accountReponsitory.findAccountByShopName(id);
     }
+
     public Account findAccountByidProduct(int id) {
         return accountReponsitory.findAccountByidProduct(id);
     }
@@ -140,10 +143,8 @@ public class AccountService {
 
     public Account changePass(Account account) {
         try {
-            PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-            account.setPw(passwordEncoder.encode(account.getPassword()));
+            account.setPw(authenticationService.passwordEncoder().encode(account.getPassword()));
             return accountReponsitory.save(account);
-
         } catch (Exception e) {
             e.printStackTrace();
             LogError.saveToLog(e);
