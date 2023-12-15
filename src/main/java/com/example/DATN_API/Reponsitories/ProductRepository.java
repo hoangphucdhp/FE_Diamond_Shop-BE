@@ -47,6 +47,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "(SELECT ip.url FROM Image_Product ip WHERE ip.id_Product = p.id FOR JSON AUTO) AS imageUrls " +
             "FROM Product p " +
             "LEFT JOIN Like_Product lp ON p.id = lp.id_Product " +
+            "WHERE p.status = 1" +
             "ORDER BY p.create_Date DESC", nativeQuery = true)
     List<Object[]> getTop10Products();
 

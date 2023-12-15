@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -90,11 +91,12 @@ public class AuthenticationService {
             infoAccount.setFullname(displayName);
             infoAccount.setInfaccount(user);
 
-            accountReponsitory.save(user);
-            roleUserReponsitory.save(roleAccount);
-            infoAccountReponsitory.save(infoAccount);
-            var jwtToken = jwtService.generateToken(user);
-
+            Account account= accountReponsitory.save(user);
+            List<RoleAccount> roleAccount1= Collections.singletonList(roleUserReponsitory.save(roleAccount));
+            InfoAccount inf= infoAccountReponsitory.save(infoAccount);
+            account.setRoles(roleAccount1);
+            account.setInfoAccount(inf);
+            var jwtToken = jwtService.generateToken(account);
             return AuthenticationResponse.builder()
                     .token(jwtToken)
                     .build();
@@ -122,11 +124,12 @@ public class AuthenticationService {
                     .token("")
                     .build();
         }
+        Account account = accountService.findByUsername(request.getUsername()).get();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .status(true)
                 .token(jwtToken)
-                .data(user)
+                .data(account)
                 .build();
     }
 

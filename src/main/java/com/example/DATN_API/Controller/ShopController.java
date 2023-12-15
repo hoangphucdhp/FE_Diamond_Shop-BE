@@ -39,6 +39,11 @@ public class ShopController {
                 "SUCCESS", "find shop by product", accountService.findAll()));
     }
 
+    @GetMapping("/shop/findAll")
+    public ResponseEntity<ResponObject> getAllShop() {
+        return new ResponseEntity<>(new ResponObject("success", "get all shop", shopService.findAll()), HttpStatus.OK);
+    }
+
     @GetMapping("shop/findByProduct/{id}")
     public ResponseEntity<ResponObject> findByProduct(@PathVariable("id") int idProduct) {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(

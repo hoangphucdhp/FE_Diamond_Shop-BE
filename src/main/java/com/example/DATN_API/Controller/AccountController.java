@@ -57,6 +57,10 @@ public class AccountController {
         Page<Account> accounts = accountService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword, shoporaccount);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject("SUCCESS", "GET ALL ACCOUNT", accounts));
     }
+    @GetMapping("/account/findAll")
+    public ResponseEntity<ResponObject> getAllAccount(){
+        return new ResponseEntity<>(new ResponObject("success","get all account",accountService.findAll()),HttpStatus.OK);
+    }
 //    private final AuthenticationService authenticationService;
 
     //    @GetMapping("/account/getAll1")
@@ -142,7 +146,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("auth/account/{email}/{newpassword}")
+    @PostMapping("/account/{email}/{newpassword}")
     public ResponseEntity<ResponObject> rePassword(@PathVariable("email") String email, @PathVariable("newpassword") String newpassword) {
         try {
             Account account = accountService.findByEmail(email);
@@ -205,9 +209,9 @@ public class AccountController {
             String charSet = "1234567890";
             // Begin validate Email
             if (Pattern.compile(regexPattern).matcher(inAccount.getEmail()).matches() != true) {
-                return new ResponseEntity<>(new ResponObject("error", "Email không hợp lệ!", null), HttpStatus.OK);
-            } else if (infoAccountService.findByEmail(inAccount.getEmail()) == null) {
-                return new ResponseEntity<>(new ResponObject("error", "Email chưa được sử dụng để đăng ký tài khoản!", null), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("error", "Email không hợp lệ!", null), HttpStatus.CREATED);
+            } else if (infoAccountService.findByEmail(inAccount.getEmail()).isEmpty() || accountService.findByEmail(inAccount.getEmail()).getProvider().equals("google")) {
+                return new ResponseEntity<>(new ResponObject("error", "Email chưa được sử dụng để đăng ký tài khoản!", null), HttpStatus.CREATED);
             } else {
                 InfoAccount inAccounts = infoAccountService.findByEmail(inAccount.getEmail()).get();
                 Account account = accountService.findByUsername(inAccounts.getInfaccount().getUsername()).get();
@@ -223,12 +227,12 @@ public class AccountController {
                 mail.setSubject("QUÊN MẬT KHẨU");
                 mail.setBody("<html><body>" + "<p>Xin chào " + account.getUsername() + ",</p>" + "<p>Chúng tôi nhận được yêu cầu thiết lập lại mật khẩu cho tài khoản FE Shop của bạn.</p>" + "<p>Vui lòng không chia sẽ mã này cho bất cứ ai:" + "<h3>" + code + "</h3>" + "</p>" + "<p>Nếu bạn không yêu cầu thiết lập lại mật khẩu, vui lòng liên hệ Bộ phận Chăm sóc Khách hàng tại đây</p>" + "<p>Trân trọng,</p>" + "<p>Bạn có thắc mắc? Liên hệ chúng tôi tại đây khuong8177@gmail.com.</p>" + "<p>Thời gian tồn tại của mã OTP là 5 phút.</p>" + "</body></html>");
                 mailServiceImplement.send(mail);
-                return new ResponseEntity<>(new ResponObject("success", "Một mã xác nhận đã được gửi đến email của bạn!", code), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponObject("success", "Một mã xác nhận đã được gửi đến email của bạn!", code), HttpStatus.CREATED);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<>(new ResponObject("error", "Gửi mã xác nhận thất bại!", null), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponObject("error", "Gửi mã xác nhận thất bại!", null), HttpStatus.CREATED);
     }
 
     @PostMapping("auth/account/profile")
@@ -449,9 +453,9 @@ public class AccountController {
     @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> AdminUpdate(@PathVariable("id") Integer id, @RequestParam("status") Boolean status) {
         Account newaccount = accountService.AdminUpdate(id, status);
-        if(newaccount!=null){
+        if (newaccount != null) {
             return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công.", newaccount), HttpStatus.OK);
-        }else{
+        } else {
             return new ResponseEntity<>(new ResponObject("error", "Thất bại.", newaccount), HttpStatus.OK);
 
         }

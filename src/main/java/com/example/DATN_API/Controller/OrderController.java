@@ -41,7 +41,7 @@ public class OrderController {
     }
 
 
-    @GetMapping("auth/getAllList")
+    @GetMapping("auth/order/getAllList")
 
     public ResponseEntity<ResponObject> getall1() {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(

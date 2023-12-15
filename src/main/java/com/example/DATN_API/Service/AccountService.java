@@ -136,8 +136,7 @@ public class AccountService {
 
     public Account createAccount(Account account) {
         try {
-            PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-            account.setPw(passwordEncoder.encode(account.getPassword()));
+            account.setPw(authenticationService.passwordEncoder().encode(account.getPassword()));
             return accountReponsitory.save(account);
 
         } catch (Exception e) {
