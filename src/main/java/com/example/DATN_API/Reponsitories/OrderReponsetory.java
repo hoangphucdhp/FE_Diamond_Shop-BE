@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface OrderReponsetory extends JpaRepository<Order, Integer> {
 
     @Query("select o from Order o")
@@ -13,8 +15,9 @@ public interface OrderReponsetory extends JpaRepository<Order, Integer> {
 
 
     @Query("select o from Order o join o.accountOrder a where a.id = ?1")
-    Page<Order> findOrderByAccount(int id,Pageable pageable);
-
+    List<Order> findOrderByAccount(int id);
+    @Query("select o from Order o join o.orderDetails dt where dt.id = ?1")
+    Order findOrderByOrderDetail(int id);
 //    @Query("select o from Order o join o.shopOrder s where s.id = ?1")
 //    Page<Order> findOrderByShop(int id,Pageable pageable);
 
