@@ -30,4 +30,12 @@ public class RateService {
     public boolean existsByAccount_rateAndProduct_rate(Account account, Product product) {
         return rateRepository.existsByAccount_rateAndProduct_rate(account, product);
     }
+
+    public Rate findById(int ratingId) {
+        return rateRepository.findById(ratingId).orElse(null);
+    }
+
+    public long getTotalBuy(int idproduct){
+        return rateRepository.countOrderDetailsByStatusAndProductId(idproduct);
+    }
 }

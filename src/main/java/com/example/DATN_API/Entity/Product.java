@@ -50,5 +50,9 @@ public class Product {
     @OneToMany(mappedBy = "product")
     public List<Storage> listStorage;
 
+    @OneToMany(mappedBy = "product_rate")
+    @JsonIgnore
+    public List<Rate> rates;
+
 }
 

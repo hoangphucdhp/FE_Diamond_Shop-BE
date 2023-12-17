@@ -20,9 +20,8 @@ public class Rate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_product")
-    @JsonIgnore
     private Product product_rate;
 
     private int star;
@@ -32,9 +31,8 @@ public class Rate {
     @ManyToOne
     @JoinColumn(name = "create_by")
     private Account account_rate;
-
     
-  @Column(name = "create_date")
+    @Column(name = "create_date")
     private LocalDateTime createDate;
 
 }

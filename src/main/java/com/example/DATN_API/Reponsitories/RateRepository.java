@@ -21,4 +21,9 @@ public interface RateRepository extends JpaRepository<Rate, Integer> {
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Rate r " +
             "WHERE r.account_rate = :account AND r.product_rate = :product")
     boolean existsByAccount_rateAndProduct_rate(@Param("account") Account account, @Param("product") Product product);
+
+    @Query("SELECT COUNT(od) FROM OrderDetail od " +
+            "JOIN od.orders o " +
+            "WHERE o.pay = true AND od.productOrder.id = :productId")
+    long countOrderDetailsByStatusAndProductId(@Param("productId") int productId);
 }

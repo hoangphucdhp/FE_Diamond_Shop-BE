@@ -1,5 +1,6 @@
 package com.example.DATN_API.Service;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -295,16 +296,58 @@ public class ProductService {
 
     public SearchResult search(Optional<String> keyword) {
         if (keyword.isPresent()) {
-            Page<Product> listProduct = productRepository.searchBarProduct(keyword.get(),PageRequest.of(0, 5,Sort.by(Sort.Direction.ASC,"product_name")));
-            Page<Shop> listShop = productRepository.searchBarShop(keyword.get(),PageRequest.of(0, 5,Sort.by(Sort.Direction.ASC,"shop_name")));
+            Page<Product> listProduct = productRepository.searchBarProduct(keyword.get(), PageRequest.of(0, 5, Sort.by(Sort.Direction.ASC, "product_name")));
+            Page<Shop> listShop = productRepository.searchBarShop(keyword.get(), PageRequest.of(0, 5, Sort.by(Sort.Direction.ASC, "shop_name")));
             SearchResult result = new SearchResult();
-            if(listShop!=null){
+            if (listShop != null) {
                 result.setShopList(listShop);
-            }if(listProduct!=null){
+            }
+            if (listProduct != null) {
                 result.setProductList(listProduct);
             }
             return result;
         }
         return null;
     }
-}
+
+    public Page<Product> searchUser(
+            Optional<Integer> offset,
+            Optional<Integer> sp,
+            Optional<String> field,
+            Optional<ArrayList<Double>> price,
+            Optional<Integer> idcate,
+            Optional<Integer> rate,
+            Optional<Integer> cate
+    ) {
+        String sortby = "product_name";
+        int itemStart = offset.orElse(0);
+        int sizePage = sp.orElse(10);
+
+        int idCategoryItem = idcate.orElse(0);
+
+        Sort.Direction direction;
+
+        // Sort
+        String typeSort = field.orElse("asc");
+        if (sortby == null || sortby.isEmpty()) {
+            sortby = "product_name";
+        }
+        if (typeSort == null || typeSort.isEmpty()) {
+            typeSort = "asc";
+        }
+        if (typeSort.equals("asc")) {
+            direction = Sort.Direction.ASC;
+        } else {
+            direction = Sort.Direction.DESC;
+        }
+        Sort sort = Sort.by(direction, sortby);
+        try {
+                Double minPrice = price.get().get(0);
+                Double maxPrice = price.get().get(1);
+                return productRepository.searchProductUser(PageRequest.of(itemStart, sizePage, sort),cate.orElse(0), categoryService.findByIdCategoryItem(idCategoryItem).orElse(null), minPrice, maxPrice,rate.orElse(0));
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }

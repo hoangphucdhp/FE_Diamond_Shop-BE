@@ -46,6 +46,16 @@ public class ProductController {
         ));
     }
 
+    @GetMapping("product/user/findAll")
+    public ResponseEntity<ResponObject> findAllUser(@RequestParam("offset") Optional<Integer> offSet,
+                                                    @RequestParam("sizePage") Optional<Integer> sizePage,
+                                                    @RequestParam("sort") Optional<String> sort, @RequestParam("price") Optional<ArrayList<Double>> price,
+                                                    @RequestParam("category") Optional<Integer> category, @RequestParam("rate") Optional<Integer> rate, @RequestParam("cate") Optional<Integer> cate) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+                "SUCCESS", "FIND ALL PRODUCT", productService.searchUser(offSet, sizePage, sort,price,category,rate,cate)
+        ));
+    }
+
     @GetMapping("/search")
     public ResponseEntity<ResponObject> searchProduct(@RequestParam("keyword") Optional<String> keyword) {
         SearchResult result = productService.search(keyword);
@@ -60,6 +70,7 @@ public class ProductController {
         }
 
     }
+
 
 //    @GetMapping()
 //    public ResponseEntity<List<Product>> getAll() {
@@ -189,7 +200,9 @@ public class ProductController {
                                                @RequestParam("key") Optional<String> keyfind,
                                                @RequestParam("keyword") Optional<String> keyword,
                                                @RequestParam("status") Optional<String> status) {
+
         Page<Product> accounts = productService.findAll(offSet, sizePage, sort, sortType, keyfind, keyword, status);
+
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponObject(
                         "SUCCESS", "GET ALL ACCOUNT", accounts));
@@ -226,6 +239,7 @@ public class ProductController {
                                                @RequestParam("sizePage") Optional<Integer> sizePage,
                                                @RequestParam("sort") Optional<String> sort, @RequestParam("sortType") Optional<String> sortType, @RequestParam("status") Optional<String> status, @RequestParam("isActive") Optional<String> isCheck) {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Thành công", productService.searchBusiness(offSet, sizePage, sort, sortType, key, valueKeyword, idCategoryItem, idshop, status, isCheck)),
+
                 HttpStatus.OK);
     }
 
@@ -270,6 +284,7 @@ public class ProductController {
 
             Row headerRow = sheet.createRow(0);
             String[] columns = {"ID", "Product Name", "Price", "Create Date", "Description", "Status", "Category ID", "Shop Id"};
+
             for (int i = 0; i < columns.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(columns[i]);
@@ -326,7 +341,9 @@ public class ProductController {
                 product.setStatus(0);
                 CategoryItem categoryItem = categoryService.findByIdCategoryItem((int) currentRow.getCell(6).getNumericCellValue()).get();
                 product.setCategoryItem_product(categoryItem);
+
                 Shop shop = shopService.findById((int) currentRow.getCell(7).getNumericCellValue());
+
                 product.setShop(shop);
 
                 productService.createProduct(product);

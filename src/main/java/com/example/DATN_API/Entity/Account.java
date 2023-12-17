@@ -74,6 +74,9 @@ public class Account implements UserDetails {
     @JsonIgnore
     private List<ChatMessage> receiverMessage;
 
+    @OneToMany(mappedBy = "account_rate")
+    @JsonIgnore
+    public List<Rate> rates;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

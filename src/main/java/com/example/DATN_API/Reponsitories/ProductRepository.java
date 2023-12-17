@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,8 +90,34 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query("UPDATE Product s SET s.status = :status WHERE s.id = :id")
     void BanProduct(int id, int status);
 
+
     @Query("select p from Product p where p.product_name like %?1% and p.status=1")
     Page<Product> searchBarProduct(String key, Pageable pageable);
+
     @Query("select p from Shop p where p.shop_name like %?1% and p.status=1")
     Page<Shop> searchBarShop(String key, Pageable pageable);
+
+    @Query(value = "SELECT pro FROM Product pro join" +
+            " pro.categoryItem_product.category cate WHERE" +
+            " (:category = 0  OR cate.id = :category) and" +
+            " (:categoryItem IS NULL OR pro.categoryItem_product = :categoryItem) AND" +
+            " (pro.price BETWEEN :minPrice AND :maxPrice) and cast(pro.status as string ) = '1' " +
+            "AND (:star = 0 OR pro.id IN (SELECT ra.product_rate.id FROM Rate ra GROUP BY ra.product_rate.id HAVING FLOOR(AVG(ra.star)) = :star))")
+    Page<Product> searchProductUser(
+            Pageable pageable,
+            @Param("category") int category,
+            @Param("categoryItem") CategoryItem categoryItem,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            @Param("star") int star
+    );
+
+
+
+
+
+
+
+
+
 }

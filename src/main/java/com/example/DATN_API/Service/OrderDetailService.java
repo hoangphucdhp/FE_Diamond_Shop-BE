@@ -12,16 +12,21 @@ public class OrderDetailService {
     @Autowired
     OrderDetailReponsitory orderDetailReponsitory;
 
-    public OrderDetail save(OrderDetail orderDetail){
-        return  orderDetailReponsitory.save(orderDetail);
+    public OrderDetail save(OrderDetail orderDetail) {
+        return orderDetailReponsitory.save(orderDetail);
 
     }
-    public List<OrderDetail> findByIdOrder(int idOrder){
+
+    public List<OrderDetail> findByIdOrder(int idOrder) {
         return orderDetailReponsitory.findByIdOrder(idOrder);
     }
 
-    public List<Object[]> getTotalByMonth(int idShop){
+    public List<Object[]> getTotalByMonth(int idShop) {
         return orderDetailReponsitory.getTotalByMonth(idShop);
+    }
+
+    public List<Object[]> statistical(int idShop, String year, String month, String day) {
+        return orderDetailReponsitory.statistical(idShop, year, month, day);
     }
 
 }

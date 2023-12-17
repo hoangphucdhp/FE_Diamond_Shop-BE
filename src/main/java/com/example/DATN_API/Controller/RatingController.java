@@ -4,6 +4,7 @@ import com.example.DATN_API.Entity.Account;
 import com.example.DATN_API.Entity.Product;
 import com.example.DATN_API.Entity.Rate;
 
+import com.example.DATN_API.Entity.ResponObject;
 import com.example.DATN_API.Reponsitories.AccountReponsitory;
 import com.example.DATN_API.Reponsitories.ProductRepository;
 import com.example.DATN_API.Reponsitories.RateRepository;
@@ -58,11 +59,10 @@ public class RatingController {
         }
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<String> addRating(@RequestBody Map<String, Object> ratingData) {
+    @PostMapping("/add/{accountid}")
+    public ResponseEntity<String> addRating(@PathVariable("accountid") int accountId, @RequestBody Map<String, Object> ratingData) {
         try {
             int productId = (int) ratingData.get("productId");
-            int accountId = (int) ratingData.get("accountId");
             int start = (int) ratingData.get("start");
             String description = (String) ratingData.get("description");
 
@@ -97,5 +97,51 @@ public class RatingController {
 
         // Kiểm tra giá trị trung bình sao là null
         return averageStar != null ? Math.round(averageStar * 100.0) / 100.0 : 0.0;
+    }
+
+    @PutMapping("/update/{ratingId}")
+    public ResponseEntity<String> updateRating(
+            @PathVariable int ratingId,
+            @RequestBody Map<String, Object> ratingData
+    ) {
+        try {
+            // Get rating by ratingId
+            Rate existingRating = rateService.findById(ratingId);
+            if (existingRating == null) {
+                return new ResponseEntity<>("Rating not found", HttpStatus.NOT_FOUND);
+            }
+
+            // Update rating fields
+            Object newStarObj = ratingData.get("star");
+            Object newDescriptionObj = ratingData.get("description");
+            System.out.println("New Star: " + newStarObj + ", New Description: " + newDescriptionObj);
+            // Check if the retrieved values are not null before converting to int or String
+            if (newStarObj != null && newDescriptionObj != null) {
+                int newStar = ((Number) newStarObj).intValue();
+                String newDescription = newDescriptionObj.toString();
+
+                existingRating.setStar(newStar);
+                existingRating.setDescription(newDescription);
+
+                // Save updated rating
+                rateService.save(existingRating);
+
+                System.out.println("Rating updated successfully. Rating ID: " + ratingId);
+                return new ResponseEntity<>("Rating updated successfully", HttpStatus.OK);
+            } else {
+                System.out.println("Invalid request data. Rating ID: " + ratingId);
+                return new ResponseEntity<>("Invalid request data", HttpStatus.BAD_REQUEST);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error updating rating. Rating ID: " + ratingId);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getTotalBuy/{product}")
+    public Long getTotalBuy(@PathVariable("product") int idproduct) {
+        return rateService.getTotalBuy(idproduct);
     }
 }
