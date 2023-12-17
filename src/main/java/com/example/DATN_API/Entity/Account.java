@@ -79,7 +79,6 @@ public class Account implements UserDetails {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         roles.stream().forEach(
                 item -> {
-                    System.out.println("s");
                     authorities.add(new SimpleGrantedAuthority("ROLE_"+item.getRole().getRole_name()));
                 }
         );

@@ -88,4 +88,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Modifying
     @Query("UPDATE Product s SET s.status = :status WHERE s.id = :id")
     void BanProduct(int id, int status);
+
+    @Query("select p from Product p where p.product_name like %?1% and p.status=1")
+    Page<Product> searchBarProduct(String key, Pageable pageable);
+    @Query("select p from Shop p where p.shop_name like %?1% and p.status=1")
+    Page<Shop> searchBarShop(String key, Pageable pageable);
 }

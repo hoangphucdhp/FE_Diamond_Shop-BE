@@ -1,5 +1,6 @@
 package com.example.DATN_API.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -292,4 +293,18 @@ public class ProductService {
         productRepository.BanProduct(id, status);
     }
 
+    public SearchResult search(Optional<String> keyword) {
+        if (keyword.isPresent()) {
+            Page<Product> listProduct = productRepository.searchBarProduct(keyword.get(),PageRequest.of(0, 5,Sort.by(Sort.Direction.ASC,"product_name")));
+            Page<Shop> listShop = productRepository.searchBarShop(keyword.get(),PageRequest.of(0, 5,Sort.by(Sort.Direction.ASC,"shop_name")));
+            SearchResult result = new SearchResult();
+            if(listShop!=null){
+                result.setShopList(listShop);
+            }if(listProduct!=null){
+                result.setProductList(listProduct);
+            }
+            return result;
+        }
+        return null;
+    }
 }

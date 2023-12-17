@@ -167,7 +167,6 @@ public class AccountService {
         try {
             Account account = findById(id);
             account.setStatus(status);
-            System.out.println(status);
             //Cấm Shop và Sản phẩm
             if (status) {
                 account.getShop().getProducts().stream().forEach(item -> {

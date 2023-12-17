@@ -75,9 +75,8 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>5.2.3</version> <!-- Phiên bản có thể được thay đổi -->
+            <version>5.2.3</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-websocket -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
@@ -100,7 +99,6 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
     </dependencies>
 
 
@@ -120,6 +118,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
 
