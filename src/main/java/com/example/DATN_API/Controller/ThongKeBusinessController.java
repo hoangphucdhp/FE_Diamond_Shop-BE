@@ -2,9 +2,7 @@
 package com.example.DATN_API.Controller;
 
 import java.util.ArrayList;
-
 import java.util.Date;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +11,7 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import com.example.DATN_API.Entity.OrderDetail;
 import com.example.DATN_API.Entity.Product;
 import com.example.DATN_API.Entity.ResponObject;
@@ -38,15 +37,12 @@ public class ThongKeBusinessController {
     ProductService productService;
 
     @GetMapping("{idShop}")
-
     public ResponseEntity<ResponObject> getBillInShop(@PathVariable("idShop") int idShop,
                                                       @RequestParam("year") String year, @RequestParam("month") String month, @RequestParam("day") String day) {
-
         Map<Integer, Object[]> listProductBand = new HashMap<>();
         Map<Integer, Object[]> listProductStocking = new HashMap<>();
         Map<Integer, Object[]> listQuantityOrder = new HashMap<>();
         Map<Integer, Object[]> listQuantityStorage = new HashMap<>();
-
         Map<Integer, String> listYears = new HashMap<>();
         Map<Integer, String> listMonths = new HashMap<>();
         Map<Integer, String> listDays = new HashMap<>();
@@ -62,26 +58,22 @@ public class ThongKeBusinessController {
         }
         List<Object[]> listStatisticalSave = new ArrayList<>();
         ;
-
         // ĐẾM SỐ LƯỢNG SẢN PHẨM CẤM BÁN VÀ SỐ LƯỢNG SẢN PHẨM HẾT HÀNG
         for (Product p : shopService.findById(idShop).getProducts()) {
             // GET QUANTITY PRODUCT IN STORAGE
             for (Storage st : p.getListStorage()) {
-
                 listQuantityStorage.put(st.getId(),
-                        new Object[]{st.getProduct().getId(), st.getQuantity(), st.getType()});
-
+                        new Object[] { st.getProduct().getId(), st.getQuantity(), st.getType() });
             }
             // GET QUANTITY PRODUCT IN ORDER
             for (OrderDetail order : p.getListOrderDetail()) {
                 listQuantityOrder.put(order.getId(),
-                        new Object[]{order.getProductOrder().getId(), order.getQuantity()});
+                        new Object[] { order.getProductOrder().getId(), order.getQuantity() });
             }
 
             if (p.getStatus() == 3) {
-                listProductBand.put(p.getId(), new Object[]{p.getProduct_name()});
+                listProductBand.put(p.getId(), new Object[] { p.getProduct_name() });
             } else if (p.getStatus() == 1) {
-
                 int quantityInStorage = 0;
                 // TỔNG SỐ LƯỢNG TRONG STORAGE
                 for (Object[] value : listQuantityStorage.values()) {
@@ -96,7 +88,7 @@ public class ThongKeBusinessController {
 
                 if (quantityInStorage <= 0) {
                     listProductStocking.put(p.getId(),
-                            new Object[]{p.getProduct_name(), quantityInStorage});
+                            new Object[] { p.getProduct_name(), quantityInStorage });
                 }
             }
         }
@@ -125,7 +117,7 @@ public class ThongKeBusinessController {
                     }
                 }
             }
-            listStatisticalSave.add(new Object[]{sumProduct, amountBill, label});
+            listStatisticalSave.add(new Object[] { sumProduct, amountBill, label });
         }
 
         Map<String, Object[]> listFinal = new HashMap<>();
@@ -136,24 +128,32 @@ public class ThongKeBusinessController {
                 Object[] existingData = listFinal.get(label);
                 int sumQuantity = (int) existingData[1] + Integer.parseInt(item[0].toString());
                 int count = (int) existingData[2] + 1;
-                listFinal.put(label, new Object[]{label, sumQuantity, count});
+                listFinal.put(label, new Object[] { label, sumQuantity, count });
             } else {
                 int sumQuantity = Integer.parseInt(item[0].toString());
                 int count = 1;
-                listFinal.put(label, new Object[]{label, sumQuantity, count});
+                listFinal.put(label, new Object[] { label, sumQuantity, count });
             }
         }
 
         List<Object[]> listStaticalDone = new ArrayList<>();
         for (Object[] value : listFinal.values()) {
-            listStaticalDone.add(new Object[]{value[0], value[1], value[2]});
+            listStaticalDone.add(new Object[] { value[0], value[1], value[2] });
         }
 
         return new ResponseEntity<>(
                 new ResponObject("success", "OK VÀO VIỆC",
-                        new Object[]{listTotal, listProductBand.size(), listProductStocking.size(),
-                                listStaticalDone}),
+                        new Object[] { listTotal, listProductBand.size(), listProductStocking.size(),
+                                listStaticalDone }),
+                HttpStatus.OK);
+    }
+
+    @GetMapping("/month/{idShop}")
+    public ResponseEntity<ResponObject> getTotalMonth(@PathVariable("idShop") int idShop,
+                                                      @RequestParam("year") String year) {
+        List<Object[]> listTotal = orderDetailService.statisticalMonth(idShop,year);
+        return new ResponseEntity<>(
+                new ResponObject("success", "OK VÀO VIỆC", listTotal),
                 HttpStatus.OK);
     }
 }
-

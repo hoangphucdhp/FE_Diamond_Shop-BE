@@ -187,5 +187,9 @@ public class AccountService {
         }
         return null;
     }
+
+    public int getAmountAccount(boolean status){
+        return accountReponsitory.getAmountAccount(status);
+    }
 }
 

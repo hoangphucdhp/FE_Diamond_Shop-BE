@@ -53,6 +53,7 @@ public class CategoryController {
     }
 
     @PostMapping("auth/category")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> create(@RequestParam("id_account") Integer idAccount, @RequestParam("image") String image, @RequestParam("type_category") String type_category, @RequestParam("create_date") Date create_date) {
         Account newAccount = CategoryService.findAccountById(idAccount);
         Category category = new Category();

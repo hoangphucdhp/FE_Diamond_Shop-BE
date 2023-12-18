@@ -111,6 +111,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("maxPrice") Double maxPrice,
             @Param("star") int star
     );
+    @Query("SELECT COUNT(p.id) FROM Product p WHERE p.status = ?1")
+    int getAmountProduct(int status);
 
 
 

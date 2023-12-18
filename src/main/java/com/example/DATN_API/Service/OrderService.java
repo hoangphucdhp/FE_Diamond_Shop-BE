@@ -2,15 +2,13 @@ package com.example.DATN_API.Service;
 
 import com.example.DATN_API.Entity.Order;
 import com.example.DATN_API.Entity.OrderDetail;
+import com.example.DATN_API.Entity.Shop;
 import com.example.DATN_API.Entity.Status;
 import com.example.DATN_API.Reponsitories.OrderDetailReponsitory;
 import com.example.DATN_API.Reponsitories.OrderReponsetory;
 import com.example.DATN_API.Reponsitories.StatusReponsitory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,14 +25,21 @@ public class OrderService {
     OrderDetailReponsitory orderDetailReponsitory;
     @Autowired
     StatusReponsitory statusReponsitory;
-    public Page<Order> findAll(Optional<Integer> offset, Optional<Integer> sp, Optional<String> field) {
-        String sort = field.orElse("create_date");
-        int itemStart = offset.orElse(0);
-        ;
-        int sizePage = sp.orElse(10);
 
-
-        return orderReponsetory.finAllOrder(PageRequest.of(itemStart, sizePage, Sort.Direction.DESC, sort));
+    public Page<Order> findAll(Optional<String> search, Optional<Integer> page, Optional<Integer> type) {
+        String sort = "create_date";
+        int pageNumber = page.orElse(1);
+        int status = type.orElse(0);
+        String keyword = search.orElse("");
+        int sizePage = 6;
+        System.out.println(status);
+        if (status == 1) {
+            return orderReponsetory.findByIdOrder(Integer.parseInt(keyword), PageRequest.of(pageNumber - 1, sizePage,Sort.Direction.DESC, sort));
+        } else if (status == 2) {
+            return orderReponsetory.findByNameShop("%"+keyword+"%", PageRequest.of(pageNumber - 1 , sizePage,Sort.Direction.DESC, sort));
+        } else {
+            return orderReponsetory.finAllOrder(PageRequest.of(pageNumber - 1,sizePage,Sort.Direction.DESC, sort));
+        }
     }
 
     public List<Order> findAllList() {
@@ -73,10 +78,6 @@ public class OrderService {
         return ordersNew;
     }
 
-//    public Page<Order> findOrderByShop(int id){
-//        Pageable pageable = PageRequest.of(0,20,Sort.by("create_date"));
-//        return orderReponsetory.findOrderByShop(id,pageable);
-//    }
 
     public List<Order> findByShop(int idShop, Optional<Integer> stt) {
         int status = stt.orElse(0);
@@ -92,25 +93,127 @@ public class OrderService {
             return null;
         }
         for (Order order : orders) {
-            if( !ordersNew.contains(order)  && status == 0){
+            if (!ordersNew.contains(order) && status == 0) {
                 ordersNew.add(order);
                 continue;
             }
-            if(!ordersNew.contains(order) && order.getStatus().get(order.getStatus().size() - 1).getStatus().getId() == status){
+            if (!ordersNew.contains(order) && order.getStatus().get(order.getStatus().size() - 1).getStatus().getId() == status) {
                 ordersNew.add(order);
             }
         }
         ordersNew.stream().forEach(item -> {
             item.getOrderDetails().stream().forEach(dt -> {
-                if (dt.getShopOrder().getId() != idShop ) {
+                if (dt.getShopOrder().getId() != idShop) {
                     item.getOrderDetails().remove(dt);
                 }
             });
         });
+
+
+
         return ordersNew;
     }
-    public List<Status> findAllStatus () {
+
+    public List<Order> findByShopAndSearch(int idShop, Optional<Integer> stt, Optional<String> search, int type) {
+        int status = stt.orElse(0);
+        System.out.println("type " + type);
+        String keyword = search.orElse("");
+        List<Order> orders = new ArrayList<>();
+        List<Order> ordersNew = new ArrayList<>();
+
+        if (keyword.equals("")) {
+
+        }
+        List<OrderDetail> orderDetails = orderDetailReponsitory.findByIdShop(idShop);
+        System.out.println(orderDetails.size());
+        System.out.println(keyword);
+        if (type == 1) {
+            orderDetails.stream().forEach(item -> {
+                System.out.println(item.getId());
+                Order orderOld = orderReponsetory.findOrderByOrderDetailAndSearchByIdOrder(item.getId(), Integer.parseInt(keyword));
+                if (orderOld != null) {
+                    orders.add(orderOld);
+                }
+            });
+            return orders;
+        } else if (type == 2) {
+            return orderReponsetory.findOrderByOrderDetailAndSearchByProductName("%" + keyword + "%");
+        } else {
+            orderDetails.stream().forEach(item -> {
+                Order orderOld = orderReponsetory.findOrderByOrderDetail(item.getId());
+                orders.add(orderOld);
+            });
+            if (orders == null) {
+                return null;
+            }
+            for (Order order : orders) {
+                if (!ordersNew.contains(order) && status == 0) {
+                    ordersNew.add(order);
+                    continue;
+                }
+                if (!ordersNew.contains(order) && order.getStatus().get(order.getStatus().size() - 1).getStatus().getId() == status) {
+                    ordersNew.add(order);
+                }
+            }
+            System.out.println("size");
+            ordersNew.stream().forEach(item -> {
+                item.getOrderDetails().stream().forEach(dt -> {
+                    if (dt.getShopOrder().getId() != idShop) {
+                        item.getOrderDetails().remove(dt);
+                    }
+                });
+            });
+        }
+
+        return ordersNew;
+    }
+
+    public List<Status> findAllStatus() {
         return statusReponsitory.findAll();
+    }
+
+    public List<Shop> findShopByOrder(int idOrder) {
+        List<Shop> shops = new ArrayList<>();
+        List<Shop> newShops = new ArrayList<>();
+        Order orders = orderReponsetory.findById(idOrder).get();
+        orders.getOrderDetails().stream().forEach(item -> {
+//            Shop shop = new Shop();
+            shops.add(item.getShopOrder());
+        });
+        if (shops == null) {
+            return null;
+        }
+        shops.stream().forEach(item -> {
+            Shop shopNew = new Shop();
+            List<OrderDetail> orderDetails = new ArrayList<>();
+
+            for (OrderDetail orderDetail :
+                    item.getListOrder()) {
+                if (item.getId() == orderDetail.getShopOrder().getId()) {
+                    orderDetails.add(orderDetail);
+                    break;
+                }
+            }
+            item.setListOrder(orderDetails);
+        });
+
+        return shops;
+    }
+
+    public List<Order> findShopByOrderSearch(Optional<String> search, Optional<Integer> type) {
+        String keyword = search.orElse("");
+        int status = type.orElse(1);
+
+        List<Order> orders = new ArrayList<>();
+        if (status == 1) {
+            Order order = orderReponsetory.findById(Integer.parseInt(keyword)).get();
+            orders.add(order);
+        } else if (status == 2) {
+            return orderReponsetory.findOrderByNameShop("%" + keyword + "%");
+        } else {
+            return null;
+        }
+        return orders;
     }
 }
 

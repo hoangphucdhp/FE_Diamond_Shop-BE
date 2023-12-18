@@ -2,6 +2,7 @@ package com.example.DATN_API.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,7 +38,7 @@ public class Account implements UserDetails {
     private Date create_date;
     private boolean status;
     private String provider;
-    @OneToMany(mappedBy = "account_role",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "account_role", fetch = FetchType.EAGER)
     private List<RoleAccount> roles;
 
     @OneToMany(mappedBy = "accountCreateCategory")
@@ -52,10 +53,8 @@ public class Account implements UserDetails {
     @OneToOne(mappedBy = "Infaccount")
     private InfoAccount infoAccount;
 
-
     @OneToMany(mappedBy = "Addressaccount")
     private List<AddressAccount> address_account;
-
 
     @OneToMany(mappedBy = "account_like")
     private List<LikeProduct> likeProductes;
@@ -77,12 +76,13 @@ public class Account implements UserDetails {
     @OneToMany(mappedBy = "account_rate")
     @JsonIgnore
     public List<Rate> rates;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         roles.stream().forEach(
                 item -> {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_"+item.getRole().getRole_name()));
+                    authorities.add(new SimpleGrantedAuthority("ROLE_" + item.getRole().getRole_name()));
                 }
         );
         return authorities;

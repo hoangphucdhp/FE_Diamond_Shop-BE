@@ -28,5 +28,11 @@ public class OrderDetailService {
     public List<Object[]> statistical(int idShop, String year, String month, String day) {
         return orderDetailReponsitory.statistical(idShop, year, month, day);
     }
+    public List<Object[]> top10Product(){
+        return orderDetailReponsitory.top10Product();
+    }
+    public List<Object[]> statisticalMonth(int idShop, String year) {
+        return orderDetailReponsitory.statisticalMonth(idShop, year);
+    }
 
 }

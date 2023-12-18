@@ -184,4 +184,7 @@ public class ShopService {
         ShopReponsitory.BanShop(id,status);
     }
 
+    public int getAmountShop(int status){
+        return ShopReponsitory.getAmountShop(status);
+    }
 }

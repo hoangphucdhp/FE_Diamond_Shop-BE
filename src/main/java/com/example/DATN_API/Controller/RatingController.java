@@ -22,9 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/ratings")
@@ -80,24 +78,25 @@ public class RatingController {
             rate.setStar(start);
             rate.setDescription(description);
             rate.setCreateDate(LocalDateTime.now());
-
+            rate.setImage((String) ratingData.get("image"));
             rateService.save(rate);
             return new ResponseEntity<>("Đã đánh giá sản phẩm thành công", HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CREATED);
         }
     }
 
     @GetMapping("/avg/{productId}")
-    public Double getAverageStarByProduct(@PathVariable int productId) {
+    public Optional<Double> getAverageStarByProduct(@PathVariable int productId) {
         Product product = productService.findById(productId);
 
-        // Lấy giá trị trung bình sao từ cơ sở dữ liệu
         Double averageStar = rateService.findAverageStarByProduct(product);
 
-        // Kiểm tra giá trị trung bình sao là null
-        return averageStar != null ? Math.round(averageStar * 100.0) / 100.0 : 0.0;
+        return averageStar != null ? Optional.of(Math.floor(averageStar * 10) / 10) : Optional.empty();
     }
+
+
+
 
     @PutMapping("/update/{ratingId}")
     public ResponseEntity<String> updateRating(
@@ -122,7 +121,7 @@ public class RatingController {
 
                 existingRating.setStar(newStar);
                 existingRating.setDescription(newDescription);
-
+                existingRating.setImage((String) ratingData.get("image"));
                 // Save updated rating
                 rateService.save(existingRating);
 
@@ -143,5 +142,11 @@ public class RatingController {
     @GetMapping("/getTotalBuy/{product}")
     public Long getTotalBuy(@PathVariable("product") int idproduct) {
         return rateService.getTotalBuy(idproduct);
+    }
+
+    @GetMapping("/findByStar/{product}/{star}")
+    public ResponseEntity<ResponObject> findByStar(@PathVariable("product") Integer idproduct,@PathVariable("star") Integer star) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+                "SUCCESS", "FIND ALL PRODUCT", rateService.findByStar(star,idproduct)));
     }
 }

@@ -46,4 +46,7 @@ public interface ShopReponsitory extends JpaRepository<Shop, Integer> {
     @Modifying
     @Query("UPDATE Shop s SET s.status = :status WHERE s.id = :id")
     void BanShop(int id, int status);
+
+    @Query("SELECT COUNT(s.id) FROM Shop s WHERE s.status = ?1")
+    int getAmountShop(int status);
 }

@@ -35,6 +35,10 @@ public class RateService {
         return rateRepository.findById(ratingId).orElse(null);
     }
 
+    public List<Rate> findByStar(int star,int product) {
+        return rateRepository.findByStar(star,product);
+    }
+
     public long getTotalBuy(int idproduct){
         return rateRepository.countOrderDetailsByStatusAndProductId(idproduct);
     }

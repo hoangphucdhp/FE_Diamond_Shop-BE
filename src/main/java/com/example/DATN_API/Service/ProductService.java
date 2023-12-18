@@ -350,4 +350,7 @@ public class ProductService {
             }
             return null;
         }
+    public int getAmountProduct(int status){
+        return productRepository.getAmountProduct(status);
+    }
     }

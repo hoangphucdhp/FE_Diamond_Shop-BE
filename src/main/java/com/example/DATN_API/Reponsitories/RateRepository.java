@@ -26,4 +26,7 @@ public interface RateRepository extends JpaRepository<Rate, Integer> {
             "JOIN od.orders o " +
             "WHERE o.pay = true AND od.productOrder.id = :productId")
     long countOrderDetailsByStatusAndProductId(@Param("productId") int productId);
+
+    @Query("select r from Rate r where (:star=0 or r.star =:star) and r.product_rate.id=:product")
+    List<Rate> findByStar(@Param("star") int star,@Param("product") int product);
 }

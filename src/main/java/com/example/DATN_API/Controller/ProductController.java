@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -94,6 +95,7 @@ public class ProductController {
     }
 
     @PostMapping("auth/product/shop/{shop}")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<ResponObject> create(@PathVariable("shop") int shop, @RequestBody Product product) {
         Shop shop2 = shopService.findById(shop);
         product.setShop(shop2);
@@ -104,6 +106,7 @@ public class ProductController {
 
 
     @PutMapping("auth/product/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<ResponObject> update(@PathVariable("id") Integer id, @RequestBody Product product) {
         if (!productService.existsById(id))
             return new ResponseEntity<>(
@@ -116,6 +119,7 @@ public class ProductController {
     }
 
     @DeleteMapping("auth/product{id}")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<ResponObject> delete(@PathVariable("id") Integer id) {
         if (!productService.existsById(id))
             return new ResponseEntity<>(new ResponObject("NOT_FOUND", "Product_id: " + id + " does not exists.", id),
@@ -127,6 +131,7 @@ public class ProductController {
     }
 
     @DeleteMapping("auth/product/delete/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<ResponObject> delete2(@PathVariable("id") Integer id) {
         if (productService.deleteProduct(id)) {
             return new ResponseEntity<>(new ResponObject("success", "Xóa thành công.", id), HttpStatus.OK);
@@ -136,6 +141,7 @@ public class ProductController {
 
     // Storage
     @PostMapping("auth/product/createStorage/{product}")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<ResponObject> createStorage(@PathVariable("product") Integer product,
                                                       @RequestBody Storage storage) {
         Product newProduct = productService.findById(product);
@@ -147,6 +153,7 @@ public class ProductController {
     }
 
     @PutMapping("auth/product/updateStorage/{id}/{idProduct}")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<ResponObject> updateStorage(@PathVariable("id") Integer id,
                                                       @PathVariable("idProduct") Integer idProduct, @RequestBody Storage storage) {
         Product newProduct = productService.findById(idProduct);
@@ -210,6 +217,7 @@ public class ProductController {
     }
 
     @PutMapping("auth/product/adminupdate/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<ResponObject> AdminProduct(@PathVariable("id") Integer id) {
         Product product = productService.findById(id);
         product.setStatus(3);
@@ -228,6 +236,7 @@ public class ProductController {
     }
 
     @PutMapping("auth/product/adminupdatestatus/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<ResponObject> AdminUpdateProduct(@PathVariable("id") Integer id, @RequestParam("status") Integer status) {
         return new ResponseEntity<>(new ResponObject("SUCCESS", "Cập nhật thành công", productService.adminUpdateStatus(id, status)),
                 HttpStatus.OK);
@@ -276,6 +285,7 @@ public class ProductController {
     }
 
     @GetMapping("auth/product/exportProductsToExcel")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public ResponseEntity<byte[]> exportProductsToExcel() {
         List<Product> productList = productService.findAll();
 
@@ -319,6 +329,7 @@ public class ProductController {
     }
 
     @PostMapping("auth/product/importProductsFromExcel")
+    @PreAuthorize("hasAnyRole('ROLE_Bussiness', 'ROLE_Admin')")
     public String importProductsFromExcel(@RequestParam("file") MultipartFile file) {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0); // Lấy sheet đầu tiên (index 0)

@@ -73,6 +73,7 @@ public class ShopController {
     }
 
     @PostMapping("/shop")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> create(@RequestParam("image") MultipartFile
                                                        image, @RequestParam("shopName") String Shopname, @RequestParam("idAccount") Integer idAccount) {
 //        Shop shopnew = shopService.createShop(shop);
@@ -111,6 +112,7 @@ public class ShopController {
 
 
     @PutMapping("/bussiness/updateInfShop/{id}")
+    @PreAuthorize("hasRole('ROLE_Bussiness')")
     public ResponseEntity<ResponObject> bussinessUpdateInf(@PathVariable("id") Integer id, @RequestParam("shop_name") String shop_name,
                                                            @RequestParam("city") String city,
                                                            @RequestParam("district") String district,
@@ -127,6 +129,7 @@ public class ShopController {
     }
 
     @DeleteMapping("/auth/adminDeleteShop/{id}")
+    @PreAuthorize("hasRole('ROLE_Admin')")
     public ResponseEntity<ResponObject> adminDeleteShop(@PathVariable("id") Integer id) {
         try {
             shopService.deleteShop(id);
