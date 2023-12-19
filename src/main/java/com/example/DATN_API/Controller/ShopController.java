@@ -111,7 +111,7 @@ public class ShopController {
     }
 
 
-    @PutMapping("/bussiness/updateInfShop/{id}")
+    @PutMapping("/auth/bussiness/updateInfShop/{id}")
     @PreAuthorize("hasRole('ROLE_Bussiness')")
     public ResponseEntity<ResponObject> bussinessUpdateInf(@PathVariable("id") Integer id, @RequestParam("shop_name") String shop_name,
                                                            @RequestParam("city") String city,

@@ -114,12 +114,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query("SELECT COUNT(p.id) FROM Product p WHERE p.status = ?1")
     int getAmountProduct(int status);
 
-
-
-
-
-
-
-
-
+    @Query("SELECT COALESCE(SUM(CASE WHEN s.type = 'cong' THEN s.quantity ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN s.type = 'tru' THEN s.quantity ELSE 0 END), 0) FROM Product p JOIN p.listStorage s WHERE p.id = :status")
+    int getTotalQuantityDifference(@Param("status") int status);
 }

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -44,5 +45,9 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
 
     @Query("SELECT COUNT(a) FROM Account a WHERE a.status = ?1")
     Integer getAmountAccount(boolean status);
+
+    @Query("select a.infoAccount.email from Account a join a.statusOrders s where s.order.id=?1")
+    List<String> getEmailsByOrder(int id);
+
 }
 

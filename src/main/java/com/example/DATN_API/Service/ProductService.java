@@ -353,4 +353,7 @@ public class ProductService {
     public int getAmountProduct(int status){
         return productRepository.getAmountProduct(status);
     }
+    public int getQuantityProduct(int status){
+        return productRepository.getTotalQuantityDifference(status);
+    }
     }

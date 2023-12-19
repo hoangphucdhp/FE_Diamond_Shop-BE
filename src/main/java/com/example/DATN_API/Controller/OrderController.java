@@ -191,10 +191,10 @@ public class OrderController {
         statusOrder.setAccount_check(order.getAccountOrder());
         statusOrder.setCreate_date(new Date());
 
-        statusOrderService.save(statusOrder);
+        StatusOrder stt= statusOrderService.save(statusOrder);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
-                "SUCCESS", "create order succsessfully", order
+                "SUCCESS", "create order succsessfully", stt
         ));
     }
 
@@ -202,7 +202,6 @@ public class OrderController {
     public ResponseEntity<ResponObject> getAllStatus() {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "find all status", orderService.findAllStatus()
-
         ));
     }
 
@@ -215,6 +214,13 @@ public class OrderController {
         List<Order> orders = orderService.findByShopAndSearch(idShop, status,keyword,type);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "FIND ORDER STATUS", orders
+        ));
+    }
+
+    @GetMapping("auth/getEmailByOderId/{id}")
+    public ResponseEntity<ResponObject> getEmail(@PathVariable("id") int id) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+                "success", "Get email", accountService.getEmailByOderId(id)
         ));
     }
 }

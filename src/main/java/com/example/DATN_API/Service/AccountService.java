@@ -191,5 +191,9 @@ public class AccountService {
     public int getAmountAccount(boolean status){
         return accountReponsitory.getAmountAccount(status);
     }
+
+    public List<String> getEmailByOderId(int id){
+        return accountReponsitory.getEmailsByOrder(id);
+    }
 }
 

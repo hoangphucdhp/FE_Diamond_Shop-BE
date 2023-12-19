@@ -149,4 +149,9 @@ public class RatingController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "FIND ALL PRODUCT", rateService.findByStar(star,idproduct)));
     }
+    @GetMapping("/getAll/{product}")
+    public ResponseEntity<ResponObject> findAll(@PathVariable("product") Integer idproduct,@PathVariable("star") Integer star) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
+                "SUCCESS", "FIND ALL PRODUCT", rateService.findByStar(star,idproduct)));
+    }
 }

@@ -366,5 +366,10 @@ public class ProductController {
         }
     }
 
+    @GetMapping("storage/{product}")
+    public ResponseEntity<ResponObject> getQuantity(@PathVariable("product") Integer id) {
+        return new ResponseEntity<>(new ResponObject("SUCCESS", "Lấy thành công", productService.getQuantityProduct(id)),
+                HttpStatus.OK);
+    }
 }
 

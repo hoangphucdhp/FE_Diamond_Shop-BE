@@ -299,7 +299,13 @@ public class AccountController {
     }
 
     @PostMapping("auth/account/saleregis/{username}/{shop}")
-    public ResponseEntity<ResponObject> saleRegis(@PathVariable("username") String username, @PathVariable("shop") String shop_name, @RequestParam("image") String image, @RequestBody AddressShop address) {
+    public ResponseEntity<ResponObject> saleRegis(  @PathVariable("username") String username,
+                                                    @PathVariable("shop") String shop_name,
+                                                    @RequestParam("image") String image,
+                                                    @RequestParam("city") String city,
+                                                    @RequestParam("district") String district,
+                                                    @RequestParam("ward") String ward,
+                                                    @RequestParam("address") String address) {
         LocalDate localDate = LocalDate.now();
         Date date = java.sql.Date.valueOf(localDate);
         try {
@@ -321,16 +327,21 @@ public class AccountController {
                     shop.setStatus(0);
                     shop.setImage(image);
                     Shop shopSave = shopService.createShop(shop);
+                    AddressShop addressShop=new AddressShop();
+                    addressShop.setAddress(address);
+                    addressShop.setWard(ward);
+                    addressShop.setDistrict(district);
+                    addressShop.setCity(city);
                     // Create shop address
-                    address.setShopAddress(shopSave);
-                    addressService.createAddressShop(address);
+                    addressShop.setShopAddress(shopSave);
+                    addressService.createAddressShop(addressShop);
                     return new ResponseEntity<>(new ResponObject("success", "Gửi yêu cầu thành công, vui lòng chờ ADMIN xét duyệt!", shopSave), HttpStatus.CREATED);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>(new ResponObject("error", "Đăng ký kênh bán hàng thất bại!", null), HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(new ResponObject("error", "Đăng ký kênh bán hàng thất bại!", null), HttpStatus.CREATED);
     }
 
     @PostMapping("auth/account/createAddress/{username}")
@@ -397,6 +408,8 @@ public class AccountController {
             addressAccount.setDistrict(addressUpdate.getDistrict());
             addressAccount.setWard(addressUpdate.getWard());
             addressAccount.setAddress(addressUpdate.getAddress());
+            addressAccount.setName(addressUpdate.getName());
+            addressAccount.setPhone(addressUpdate.getPhone());
             addressAccountService.save(addressAccount);
             List<AddressAccount> listAddress = addressAccountService.findAllAddressAccount(account.getId());
             return new ResponseEntity<>(new ResponObject("success", "Cập nhật thành công!", listAddress), HttpStatus.CREATED);
