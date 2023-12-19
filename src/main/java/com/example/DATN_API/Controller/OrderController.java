@@ -150,8 +150,13 @@ public class OrderController {
     }
 
     @GetMapping("auth/order/shop/{idShop}")
-    public ResponseEntity<ResponObject> findByShopAndStatus(@PathVariable("idShop") int idShop, @RequestParam("status") Optional<Integer> status) {
-        List<Order> orders = orderService.findByShop(idShop, status);
+    public ResponseEntity<ResponObject> findByShopAndStatus(
+            @PathVariable("idShop") int idShop,
+            @RequestParam("keyword") Optional<String> keyword,
+            @RequestParam("type") int type,
+            @RequestParam("status") Optional<Integer> status
+    ) {
+        List<Order> orders = orderService.findByShopAndSearch(idShop, status,keyword,type);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponObject(
                 "SUCCESS", "FIND ORDER STATUS", orders
         ));

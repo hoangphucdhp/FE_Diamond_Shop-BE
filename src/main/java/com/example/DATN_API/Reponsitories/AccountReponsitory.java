@@ -19,7 +19,7 @@ public interface AccountReponsitory extends JpaRepository<Account, Integer> {
     Account findByEmail(String email);
 
 
-    @Query("select acc.id,acc.create_date,acc.us,acc.status,inf.fullname,inf.image,inf.gender,shop.id,shop.shop_name,shop.status,shop.image,shop.addressShop,shop.create_date,inf.email from Account acc join acc.infoAccount inf join acc.shop shop")
+    @Query("select acc from Account acc")
     Page<Account> getAll(Pageable pageable);
 
     @Query("select acc from Account acc where acc.us like %?1%")

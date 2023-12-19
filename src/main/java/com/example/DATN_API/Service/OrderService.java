@@ -34,11 +34,11 @@ public class OrderService {
         int sizePage = 6;
         System.out.println(status);
         if (status == 1) {
-            return orderReponsetory.findByIdOrder(Integer.parseInt(keyword), PageRequest.of(pageNumber - 1, sizePage,Sort.Direction.DESC, sort));
+            return orderReponsetory.findByIdOrder(Integer.parseInt(keyword), PageRequest.of(pageNumber - 1, sizePage, Sort.Direction.DESC, sort));
         } else if (status == 2) {
-            return orderReponsetory.findByNameShop("%"+keyword+"%", PageRequest.of(pageNumber - 1 , sizePage,Sort.Direction.DESC, sort));
+            return orderReponsetory.findByNameShop("%" + keyword + "%", PageRequest.of(pageNumber - 1, sizePage, Sort.Direction.DESC, sort));
         } else {
-            return orderReponsetory.finAllOrder(PageRequest.of(pageNumber - 1,sizePage,Sort.Direction.DESC, sort));
+            return orderReponsetory.finAllOrder(PageRequest.of(pageNumber - 1, sizePage, Sort.Direction.DESC, sort));
         }
     }
 
@@ -82,16 +82,16 @@ public class OrderService {
     public List<Order> findByShop(int idShop, Optional<Integer> stt) {
         int status = stt.orElse(0);
 
-        List<OrderDetail> orderDetails = orderDetailReponsitory.findByIdShop(idShop);
-        List<Order> orders = new ArrayList<>();
+//        List<OrderDetail> orderDetails = orderDetailReponsitory.findByIdShop(idShop);
+        List<Order> orders = orderDetailReponsitory.findByIdShops(idShop);
         List<Order> ordersNew = new ArrayList<>();
-        orderDetails.stream().forEach(item -> {
-            Order orderOld = orderReponsetory.findOrderByOrderDetail(item.getId());
-            orders.add(orderOld);
-        });
-        if (orders == null) {
-            return null;
-        }
+//        orderDetails.stream().forEach(item -> {
+//            Order orderOld = orderReponsetory.findOrderByOrderDetail(item.getId());
+//            orders.add(orderOld);
+//        });
+//        if (orders == null) {
+//            return null;
+//        }
         for (Order order : orders) {
             if (!ordersNew.contains(order) && status == 0) {
                 ordersNew.add(order);
@@ -101,14 +101,13 @@ public class OrderService {
                 ordersNew.add(order);
             }
         }
-        ordersNew.stream().forEach(item -> {
-            item.getOrderDetails().stream().forEach(dt -> {
-                if (dt.getShopOrder().getId() != idShop) {
-                    item.getOrderDetails().remove(dt);
-                }
-            });
-        });
-
+//        ordersNew.stream().forEach(item -> {
+//            item.getOrderDetails().stream().forEach(dt -> {
+//                if (dt.getShopOrder().getId() != idShop) {
+//                    item.getOrderDetails().remove(dt);
+//                }
+//            });
+//        });
 
 
         return ordersNew;
@@ -120,51 +119,29 @@ public class OrderService {
         String keyword = search.orElse("");
         List<Order> orders = new ArrayList<>();
         List<Order> ordersNew = new ArrayList<>();
-
-        if (keyword.equals("")) {
-
-        }
         List<OrderDetail> orderDetails = orderDetailReponsitory.findByIdShop(idShop);
         System.out.println(orderDetails.size());
         System.out.println(keyword);
-        if (type == 1) {
-            orderDetails.stream().forEach(item -> {
-                System.out.println(item.getId());
-                Order orderOld = orderReponsetory.findOrderByOrderDetailAndSearchByIdOrder(item.getId(), Integer.parseInt(keyword));
-                if (orderOld != null) {
-                    orders.add(orderOld);
-                }
-            });
-            return orders;
-        } else if (type == 2) {
-            return orderReponsetory.findOrderByOrderDetailAndSearchByProductName("%" + keyword + "%");
-        } else {
-            orderDetails.stream().forEach(item -> {
-                Order orderOld = orderReponsetory.findOrderByOrderDetail(item.getId());
-                orders.add(orderOld);
-            });
-            if (orders == null) {
-                return null;
-            }
-            for (Order order : orders) {
-                if (!ordersNew.contains(order) && status == 0) {
-                    ordersNew.add(order);
-                    continue;
-                }
-                if (!ordersNew.contains(order) && order.getStatus().get(order.getStatus().size() - 1).getStatus().getId() == status) {
-                    ordersNew.add(order);
-                }
-            }
-            System.out.println("size");
-            ordersNew.stream().forEach(item -> {
-                item.getOrderDetails().stream().forEach(dt -> {
-                    if (dt.getShopOrder().getId() != idShop) {
-                        item.getOrderDetails().remove(dt);
-                    }
-                });
-            });
-        }
 
+        if (type == 1 && keyword != "") {
+            Order orderOld = orderReponsetory.findOrderByOrderDetailAndSearchByIdOrder(Integer.parseInt(keyword), idShop);
+            if (orderOld != null) {
+                orders.add(orderOld);
+            }
+
+        } else if (type == 2 || keyword == "") {
+            List<Order> o = orderReponsetory.findOrderByOrderDetailAndSearchByProductName("%" + keyword + "%", idShop);
+            orders = o;
+        }
+        for (Order order : orders) {
+            if (!ordersNew.contains(order) && status == 0) {
+                ordersNew.add(order);
+                continue;
+            }
+            if (!ordersNew.contains(order) && order.getStatus().get(order.getStatus().size() - 1).getStatus().getId() == status) {
+                ordersNew.add(order);
+            }
+        }
         return ordersNew;
     }
 

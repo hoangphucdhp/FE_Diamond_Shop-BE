@@ -20,15 +20,15 @@ public interface OrderReponsetory extends JpaRepository<Order, Integer> {
     List<Order> findOrderByAccount(int id);
     @Query("select o from Order o join o.orderDetails dt where dt.id = ?1")
     Order findOrderByOrderDetail(int id);
-    @Query("select o from Order o join o.orderDetails dt where dt.id = ?1 and o.id = ?2")
-    Order findOrderByOrderDetailAndSearchByIdOrder(int id, int idOrder);
+    @Query("select o from Order o join o.orderDetails dt join dt.shopOrder s where o.id = ?1 and s.id = ?2")
+    Order findOrderByOrderDetailAndSearchByIdOrder( int idOrder, int idShop);
 
     @Query("select o from Order o join o.orderDetails dt join dt.shopOrder s where s.shop_name like ?1")
     List<Order> findOrderByNameShop(String shop_name );
     @Query("select o from Order o join o.orderDetails dt join dt.shopOrder s where s.shop_name like ?1")
     Page<Order> findByNameShop(String shop_name , Pageable pageable);
-    @Query("select o from Order o join o.orderDetails dt join dt.productOrder p where  p.product_name like ?1")
-    List<Order> findOrderByOrderDetailAndSearchByProductName(String keyword);
+    @Query("select o from Order o join o.orderDetails dt join dt.productOrder p join p.shop s where  p.product_name like ?1 and s.id = ?2 ")
+    List<Order> findOrderByOrderDetailAndSearchByProductName(String keyword, int id);
 
     @Query("select o from Order o join o.orderDetails dt join dt.productOrder p where  p.product_name like ?1")
     Page<Order> findByOrderDetailAndSearchByProductName(String keyword, Pageable pageable);

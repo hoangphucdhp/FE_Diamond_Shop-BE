@@ -1,5 +1,6 @@
 package com.example.DATN_API.Reponsitories;
 
+import com.example.DATN_API.Entity.Order;
 import com.example.DATN_API.Entity.OrderDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +20,8 @@ public interface OrderDetailReponsitory extends JpaRepository<OrderDetail, Integ
 
     @Query("Select dt FROM OrderDetail dt join dt.shopOrder so WHERE so.id = ?1")
     List<OrderDetail> findByIdShop(int idShop);
+    @Query("Select o FROM Order o join o.orderDetails dt join dt.shopOrder s where s.id = ?1")
+    List<Order> findByIdShops(int idShop);
 
     @Query("SELECT  SUM(odt.quantity), YEAR(o.create_date), MONTH(o.create_date), DAY(o.create_date), o.id, HOUR(o.create_date) "
             +
